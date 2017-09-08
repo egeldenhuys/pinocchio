@@ -8,6 +8,9 @@ from peer_review.models import User, Document
 from peer_review.view.userFunctions import user_error
 from peer_review.view.userManagement import create_user_send_otp
 
+# Try to parse the CSV into User objects
+# - If there were no errors, give a preview of the pending changes
+#   - If there were errors, show where the error occured and abort
 
 def add_csv_info(user_list):
     for row in user_list:
@@ -18,6 +21,7 @@ def add_csv_info(user_list):
         # email_text = file.read()
         file.close()
 
+        # Send OTP email
         user = create_user_send_otp(
             user_user_id=row['user_id'],
             user_status='U',
@@ -29,8 +33,6 @@ def add_csv_info(user_list):
             user_email=row['email']
         )
 
-        # Send OTP email
-        user.save()
     return
 
 
@@ -109,7 +111,7 @@ def submit_csv(request):
                             os.remove(file_path)
 
                         return render(request, 'peer_review/userAdmin.html',
-                                      {'message': message, 
+                                      {'message': message,
                                        'row': rowlist,
                                        'error': error_type,
                                        'users': users,
