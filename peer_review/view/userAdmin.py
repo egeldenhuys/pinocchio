@@ -7,6 +7,7 @@ from peer_review.forms import DocumentForm, UserForm
 from peer_review.models import User, Document
 from peer_review.view.userFunctions import user_error
 from peer_review.view.userManagement import create_user_send_otp
+from peer_review.modules import csvUtils
 
 # Try to parse the CSV into User objects
 # - If there were no errors, give a preview of the pending changes
