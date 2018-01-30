@@ -6,6 +6,11 @@ from typing import Dict
 
 
 class CsvUtilsTest(TestCase):
+    """Tests relating to the csvUtils module
+
+    Does not test error_message
+    """
+
     def setUp(self):
         module_dir = os.path.dirname(__file__)
         self.csv_dir: str = module_dir + "/test_csvUtils"
@@ -21,7 +26,7 @@ class CsvUtilsTest(TestCase):
         # Pass when all fields are also in the csv header
         # Pass when there are spaces after the ',' delimiter
         result: csv_utils.CsvStatus = csv_utils.validate_csv(self.fields, self.csv_dir + '/valid.csv')
-        self.assertEqual(result.valid, True)
+        self.assertEqual(result.valid, True, "Could not find all the fields in csv header")
 
         # Fail when field not found in csv header
         result = csv_utils.validate_csv(self.fields, self.csv_dir + '/invalid_header.csv')
@@ -77,5 +82,9 @@ class CsvUtilsTest(TestCase):
 
     def test_invalid_row(self):
         result: csv_utils.CsvStatus = csv_utils.validate_csv(self.fields, self.csv_dir + '/invalid_row.csv')
+        self.assertEqual(result.valid, False)
+        self.assertEqual(result.data, None)
+
+        result = csv_utils.validate_csv(self.fields, self.csv_dir + '/invalid_row2.csv')
         self.assertEqual(result.valid, False)
         self.assertEqual(result.data, None)
