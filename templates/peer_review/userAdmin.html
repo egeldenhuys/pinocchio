@@ -120,53 +120,45 @@
                         </a>
                     </h4>
                 </div>
-                {% if new_users or message or possible_users%}
+                <!-- TODO(egeldenhuys): rename message to something specific to CSV uploading.
+                                        Only used for CSV uploading. -->
+                {% if message or possible_users%}
                     <div id="collapseTwo" class="panel-collapse collapse in">
                 {% else %}
                     <div id="collapseTwo" class="panel-collapse collapse">
                 {% endif %}
-                    <div class="panel-body">
-                        <form class="col-md-6" action="{% url 'submitCSV' %}" method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <p>{{ docForm.non_field_errors }}</p>
+                        <div class="panel-body">
+                            <form class="col-md-6" action="{% url 'submitCSV' %}" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <p>{{ docForm.non_field_errors }}</p>
 
-                            <p>{{ docForm.doc_file.label_tag }} {{ docForm.doc_file.help_text }}</p>
+                                <p>{{ docForm.doc_file.label_tag }} {{ docForm.doc_file.help_text }}</p>
 
-                            <p>
-                                {{ docForm.doc_file.errors }}
-                                {{ docForm.doc_file }}
-                            </p>
+                                <p>
+                                    {{ docForm.doc_file.errors }}
+                                    {{ docForm.doc_file }}
+                                </p>
+                                <input type="submit" value="Submit"/>
+                            </form>
 
-                            <!-- Flag if upload is for testing or changing database
-                                    0: Upload and make changes
-                                    1: Only test input and display validation message
-                             -->
-                            <input name="test-submit-flag" type="hidden" value="0" id="test-submit-flag">
-
-                            <p><input type="submit" value="Test" onclick="document.getElementById('test-submit-flag').value = 1"/>
-                            <input type="submit" value="Submit"  onclick="document.getElementById('test-submit-flag').value = 0"/></p>
-                        </form>
-
-                        <form class="col-md-6" action="" method="post" enctype="multipart/form-data">
-                            <p><label for="email_template">Email Template:</label></p>
-                            <input class="save btn btn-info" type="button" data-toggle="modal" data-target="#editEmailTemplate" id="email_template" value="Edit">
-                        </form>
-                    </div>
-                    {%  if new_users or possible_users %}
+                            <!-- TODO(egeldenhuys): Move Email template to different location -->
+                            <form class="col-md-6" action="" method="post" enctype="multipart/form-data">
+                                <p><label for="email_template">Email Template:</label></p>
+                                <input class="save btn btn-info" type="button" data-toggle="modal" data-target="#editEmailTemplate" id="email_template" value="Edit">
+                            </form>
+                        </div>
+                    {%  if possible_users %}
                         <div class = "panel-body">
-                            {% if new_users %}
-                                <div class="alert alert-success" role="alert">
-                                    <strong>Success!</strong> The following users were added:
-                                </div>
-                                {% for u in new_users %}
-                                    <em>{{ u.name }} ({{ u.initials }}) {{ u.surname }}</em>
-                                    <br>
-                                {% endfor %}
 
-                            {%  elif possible_users %}
-                                <div class="alert alert-warning" role="alert">
+                                <div class="alert alert-success" role="alert">
                                     <strong>The CSV file is valid.</strong> The following users will be added:
                                 </div>
+
+                                <!-- TODO(egeldenhuys): Add button to skip to bottom? -->
+                                <div class="alert alert-info" role="alert">
+                                    Confirm the transaction at the bottom of the page
+                                </div>
+
                                 <div class='table-responsive'>
                                     <table class='table'>
                                         <thead>
@@ -192,29 +184,18 @@
                                         {% endfor %}
                                     </table>
                                 </div>
-                            {% endif %}
+                                <form class="float-right" action="{% url 'submitCSV_confirm' %}" method="post" enctype="multipart/form-data">
+                                    <input type="submit" value="Confirm"/>
+                                </form>
+
                     {% endif %}
                         {% if message %}
                             <div class = "panel-body">
-                                {% if error == 0 %}
-                                    <div class="alert alert-warning" role="alert">
-                                        <p>Something seems to be wrong with the CSV file.</p>
-                                    </div>
-                                    <p>The format should be:</p>
-                                    <p><em>title,initials,name,surname,email,cell,user_id</em></p>
-                                    <p>An example entry is <em>"Mr","M","Matthew","Botha","mmm@gmail.com","0123456789","14141414","S"</em></p>
-                                {% else %}
+                                {% if error_code == 0 %}
                                     <div class="alert alert-danger" role="alert">
-                                        There is an error in the CSV, at line {{ message }}:
-                                {% endif %}
-
-                                {% if error == 2 %}
-                                    Not all fields contain values.
+                                        <p>{{ message }}</p>
                                     </div>
-                                {% elif error == 3 %}
-                                     Cell number is invalid.
-                                    </div>
-                                {% elif error == 4 %}
+                                {% elif error_code == 4 %}
                                     The following user already exists.
                                     </div>
                                     <div class='table-responsive'>
@@ -264,7 +245,7 @@
                             </div>
                         {% endif %}
                         {%  if new_users or possible_users %}
-                            </div>
+                    </div>
                         {% endif %}
                 </div>
             </div>
@@ -342,6 +323,7 @@
 
     {% include "peer_review/userEditModal.html" %}
 
+<!-- TODO(egeldenhuys): Move the Email template to a different accordion. Unexpected here -->
     <div id="editEmailTemplate" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">

@@ -8,13 +8,17 @@ from typing import Dict
 class CsvUtilsTest(TestCase):
     """Tests relating to the csvUtils module
 
-    Does not test error_message
+    Only the existence of error_message is tested
 
-    .. todo:: Remove inconsistent style from test csv files. Isolate styles
-    to one test
+    .. TODO(egeldenhuys) Remove inconsistent style from test csv files. Isolate styles
+    to one test. + Test if extra header cols are ignored if not in fields list
     """
 
     def setUp(self):
+        """
+        Define fields we want to test here
+        :return:
+        """
         module_dir = os.path.dirname(__file__)
         self.csv_dir: str = module_dir + "/test_csvUtils"
         self.fields: list = [
@@ -33,6 +37,8 @@ class CsvUtilsTest(TestCase):
         result = csv_utils.validate_csv(self.fields,
                                         self.csv_dir + '/invalid_header.csv')
         self.assertEqual(result.valid, False)
+        self.assertEqual(result.data, None)
+        self.assertNotEqual(result.error_message, None)
 
         # Pass when there are extra fields in the csv header
         result = csv_utils.validate_csv(
@@ -83,17 +89,20 @@ class CsvUtilsTest(TestCase):
         result: csv_utils.CsvStatus = csv_utils.validate_csv(
             self.fields, self.csv_dir + '/no_users.csv')
         self.assertEqual(result.valid, False)
+        self.assertNotEqual(result.error_message, None)
         self.assertEqual(result.data, None)
 
     def test_invalid_row(self):
         result: csv_utils.CsvStatus = csv_utils.validate_csv(
             self.fields, self.csv_dir + '/invalid_row.csv')
         self.assertEqual(result.valid, False)
+        self.assertNotEqual(result.error_message, None)
         self.assertEqual(result.data, None)
 
         result = csv_utils.validate_csv(self.fields,
                                         self.csv_dir + '/invalid_row2.csv')
         self.assertEqual(result.valid, False)
+        self.assertNotEqual(result.error_message, None)
         self.assertEqual(result.data, None)
 
     def test_styles(self):

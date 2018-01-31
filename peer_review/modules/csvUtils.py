@@ -69,6 +69,6 @@ def validate_csv(fields: List[str], file_path: str) -> CsvStatus:
             users.append(row)
 
     if users:
-        return CsvStatus(valid=True, error_message='', data=users)
+        return CsvStatus(valid=True, error_message=None, data=users)
     else:
-        return CsvStatus(valid=False, error_message='')
+        return CsvStatus(valid=False, error_message='No entries in CSV file')
