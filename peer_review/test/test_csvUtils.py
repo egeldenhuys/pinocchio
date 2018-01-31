@@ -17,20 +17,15 @@ class CsvUtilsTest(TestCase):
     def setUp(self):
         module_dir = os.path.dirname(__file__)
         self.csv_dir: str = module_dir + "/test_csvUtils"
-        self.fields: list = ['title',
-                             'initials',
-                             'name',
-                             'surname',
-                             'cell',
-                             'email',
-                             'user_id']
+        self.fields: list = [
+            'title', 'initials', 'name', 'surname', 'cell', 'email', 'user_id'
+        ]
 
     def test_header_validation(self):
         # Pass when all fields are also in the csv header
         # Pass when there are spaces after the ',' delimiter
-        result: csv_utils.CsvStatus = csv_utils.validate_csv(self.fields,
-                                                             self.csv_dir +
-                                                             '/valid.csv')
+        result: csv_utils.CsvStatus = csv_utils.validate_csv(
+            self.fields, self.csv_dir + '/valid.csv')
         self.assertEqual(result.valid, True,
                          "Could not find all the fields in csv header")
 
@@ -40,18 +35,16 @@ class CsvUtilsTest(TestCase):
         self.assertEqual(result.valid, False)
 
         # Pass when there are extra fields in the csv header
-        result = csv_utils.validate_csv(self.fields,
-                                        self.csv_dir +
-                                        '/valid_header_extra.csv')
+        result = csv_utils.validate_csv(
+            self.fields, self.csv_dir + '/valid_header_extra.csv')
         self.assertEqual(result.valid, True)
 
     def test_user_validation(self):
-        result: csv_utils.CsvStatus = csv_utils.validate_csv(self.fields,
-                                                             self.csv_dir +
-                                                             '/valid_users.csv')
+        result: csv_utils.CsvStatus = csv_utils.validate_csv(
+            self.fields, self.csv_dir + '/valid_users.csv')
         self.assertEqual(result.valid, True)
         self.assertNotEqual(result.data, None)
-        self.assertEqual(len(result.data), 3);
+        self.assertEqual(len(result.data), 3)
 
         user1: Dict[str, str] = dict()
         user1['title'] = 'Mrs'
@@ -87,16 +80,14 @@ class CsvUtilsTest(TestCase):
         self.assertDictEqual(result.data[2], user1)
 
     def test_no_users(self):
-        result: csv_utils.CsvStatus = csv_utils.validate_csv(self.fields,
-                                                             self.csv_dir +
-                                                             '/no_users.csv')
+        result: csv_utils.CsvStatus = csv_utils.validate_csv(
+            self.fields, self.csv_dir + '/no_users.csv')
         self.assertEqual(result.valid, False)
         self.assertEqual(result.data, None)
 
     def test_invalid_row(self):
-        result: csv_utils.CsvStatus = csv_utils.validate_csv(self.fields,
-                                                             self.csv_dir +
-                                                             '/invalid_row.csv')
+        result: csv_utils.CsvStatus = csv_utils.validate_csv(
+            self.fields, self.csv_dir + '/invalid_row.csv')
         self.assertEqual(result.valid, False)
         self.assertEqual(result.data, None)
 
@@ -106,9 +97,8 @@ class CsvUtilsTest(TestCase):
         self.assertEqual(result.data, None)
 
     def test_styles(self):
-        result: csv_utils.CsvStatus = csv_utils.validate_csv(self.fields,
-                                                             self.csv_dir +
-                                                             '/valid_style.csv')
+        result: csv_utils.CsvStatus = csv_utils.validate_csv(
+            self.fields, self.csv_dir + '/valid_style.csv')
         self.assertEqual(result.valid, True)
 
         user2: Dict[str, str] = dict()

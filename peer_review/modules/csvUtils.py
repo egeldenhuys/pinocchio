@@ -6,7 +6,9 @@ class CsvStatus(object):
     """Holds information on the validity of the csv file and the returned
     data"""
 
-    def __init__(self, valid: bool, error_message: str = None,
+    def __init__(self,
+                 valid: bool,
+                 error_message: str = None,
                  data: List[Dict[str, str]] = None) -> None:
         """
         :param valid: Is the CSV file valid
@@ -35,9 +37,10 @@ def validate_header(csv_file, fields: List[str]) -> CsvStatus:
     for item in fields:
         if item not in header:
             csv_file.seek(0)
-            return CsvStatus(valid=False,
-                             error_message="Field " + item + " was not found "
-                                                             "in the header")
+            return CsvStatus(
+                valid=False,
+                error_message="Field " + item + " was not found "
+                "in the header")
 
     csv_file.seek(0)
     return CsvStatus(valid=True, error_message=None)
@@ -50,11 +53,6 @@ def validate_csv(fields: List[str], file_path: str) -> CsvStatus:
         if not header_result.valid:
             return header_result
 
-        header_reader = csv.reader(csv_file, skipinitialspace=True)
-        header = next(header_reader)
-
-        csv_file.seek(0)
-
         reader: csv.DictReader = csv.DictReader(csv_file, skipinitialspace=True)
 
         # Try parsing csv into tuples according to the given fields
@@ -64,11 +62,10 @@ def validate_csv(fields: List[str], file_path: str) -> CsvStatus:
             # Make sure all fields were found in the row
             for key, value in row.items():
                 if not value:
-                    return CsvStatus(valid=False,
-                                     error_message='No value found for key '
-                                                   '\'' + key + '\' on line '
-                                                   + str(
-                                             reader.line_num))
+                    return CsvStatus(
+                        valid=False,
+                        error_message='No value found for key '
+                        '\'' + key + '\' on line ' + str(reader.line_num))
             users.append(row)
 
     if users:
