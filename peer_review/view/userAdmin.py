@@ -73,36 +73,54 @@ def user_exists(user_id: str):
     Returns:
         True if the user exists, otherwise False
     """
-    user = User.objects.get(user_id=user_id)
 
-    if user:
-        return True
-    else:
-        return False
+    result: bool = False;
+    try:
+        user = User.objects.get(user_id=user_id)
+        result = True;
+    except Exception:
+        # User does not exist
+        pass
 
+    return result
+
+# TODO(egeldenhuys): keep track of file uploads. Confirm
 
 @admin_required
 def submit_csv(request):
-    """Validate the CSV and return the status and data in the context"""
+    """Validate the CSV and return the status and data in the context
+
+    Returns:
+        message (str): A message indicating the error, if not valid
+        possible_users (List[Dict[str, str]]):
+            A list of users to be added, or already existing, if valid
+        error_code (int):
+            0: No error
+            1: CSV error
+            2: User(s) already exists
+            3: CSV upload error
+
+        `error_code` will always be returned.
+    """
     # TODO(egeldenhuys): Get fields from User Model
     fields: list = [
         'title', 'initials', 'name', 'surname', 'cell', 'email', 'user_id'
     ]
 
     context_data: Dict[str, Any] = init_context_data()
+    context_data['error_code'] = 3
 
-    # TODO(egeldenhuys): Check what is_valid() actually checks
     if request.method == 'POST' and \
             DocumentForm(request.POST, request.FILES).is_valid():
 
         csv_file = Document(doc_file=request.FILES['doc_file'])
 
-        # TODO(egeldenhuys): What happens with saved files?
-
         csv_file.save()
 
         # [1:] Strip the leading /
-        result: CsvStatus = csv_utils.validate_csv(fields, file_path=csv_file.doc_file.url[1:])
+        file_path: str = csv_file.doc_file.url[1:]
+
+        result: CsvStatus = csv_utils.validate_csv(fields, file_path=file_path)
 
         if result.valid:
             existing_users: List[Dict[str, str]] = list()
@@ -112,17 +130,22 @@ def submit_csv(request):
                     existing_users.append(user)
 
             if len(existing_users) > 0:
-                context_data['message'] = "Users already exist in database"
+                context_data['message'] = "The following user_id(s) already exist"
                 context_data['possible_users'] = existing_users
-                context_data['error_code'] = 4
+                context_data['error_code'] = 2
             else:
                 context_data['message'] = None
                 context_data['possible_users'] = result.data
+                context_data['error_code'] = 0
         else:
             context_data['message'] = result.error_message
-            context_data['error_code'] = 0
+            context_data['error_code'] = 1
     else:
         context_data['message'] = 'Error uploading document. Please try again'
-        context_data['error_code'] = 0
+        context_data['error_code'] = 1
+
+    if context_data['error_code'] != 0 and context_data['error_code'] != 3:
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
     return render(request, 'peer_review/userAdmin.html', context_data)

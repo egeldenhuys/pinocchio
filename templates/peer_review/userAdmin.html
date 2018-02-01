@@ -8,6 +8,7 @@
         title = "userAdmin";
 
 
+
 </script>
 {% endblock extrahead %}
 
@@ -148,9 +149,12 @@
                         </form>
                     </div>
 
+                    <!-- existance of error_code indicates we recieved a response
+                    from the submit_csv() function -->
+                    {% if error_code != None %}
                     <div class="panel-body">
 
-                        {% if error_code != 0 and error_code != 4 and possible_users %}
+                        {% if error_code == 0 %}
                         <div class="alert alert-success" role="alert">
                             <strong>The CSV file is valid.</strong> The following users will be added:
                         </div>
@@ -159,8 +163,7 @@
                         <div class="alert alert-info" role="alert">
                             Confirm the transaction at the bottom of the page
                         </div>
-                        {% elif error_code == 0 or error_code == 4 %}
-
+                        {% else %}
                         <div class="alert alert-danger" role="alert">
                             {{ message }}
                         </div>
@@ -193,11 +196,15 @@
                             </table>
                         </div>
                         {% endif %}
+
+                        {% if error_code == 0 %}
                         <form action="{% url 'submitCSV_confirm' %}" method="post"
                               enctype="multipart/form-data">
                             <input type="submit" value="Confirm"/>
                         </form>
+                        {% endif %}
                     </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -389,6 +396,7 @@
                 });
             }
         });
+
 
 
 
