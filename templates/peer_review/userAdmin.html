@@ -9,6 +9,7 @@
 
 
 
+
 </script>
 {% endblock extrahead %}
 
@@ -156,13 +157,16 @@
 
                         {% if error_code == 0 %}
                         <div class="alert alert-success" role="alert">
-                            <strong>The CSV file is valid.</strong> The following users will be added:
+                            {{ message }}
                         </div>
 
-                        <!-- TODO(egeldenhuys): Add button to skip to bottom? -->
-                        <div class="alert alert-info" role="alert">
-                            Confirm the transaction at the bottom of the page
-                        </div>
+                            {% if possible_users %}
+                            <!-- TODO(egeldenhuys): Add button to skip to bottom? -->
+                            <div class="alert alert-info" role="alert">
+                                Confirm the transaction at the bottom of the page
+                            </div>
+                            {% endif %}
+
                         {% else %}
                         <div class="alert alert-danger" role="alert">
                             {{ message }}
@@ -197,10 +201,16 @@
                         </div>
                         {% endif %}
 
-                        {% if error_code == 0 %}
+                        {% if error_code == 0 and possible_users %}
                         <form action="{% url 'submitCSV_confirm' %}" method="post"
                               enctype="multipart/form-data">
-                            <input type="submit" value="Confirm"/>
+                            {% csrf_token %}
+
+                            <input type="hidden" name="request_id" value="{{request_id}}"><br>
+                            <input id="confirm" type="hidden" name="confirm" value="0"><br>
+
+                            <input type="submit" value="Cancel" onclick="document.getElementById('confirm').value='0'">
+                            <input type="submit" value="Confirm" onclick="document.getElementById('confirm').value='1'">
                         </form>
                         {% endif %}
                     </div>
@@ -320,9 +330,8 @@
         </div>
     </div>
 
-    <script src="{% static " peer_review
-    /search.js" %}"></script>
-    <script src="{% static "peer_review/validation.js" %}"></script>
+    <script src="{% static 'peer_review/search.js' %}"></script>
+    <script src="{% static 'peer_review/validation.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             const table = $("#users").DataTable({
@@ -396,6 +405,7 @@
                 });
             }
         });
+
 
 
 
