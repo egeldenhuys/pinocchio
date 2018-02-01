@@ -3,32 +3,42 @@ import csv
 
 
 class CsvStatus(object):
-    """Holds information on the validity of the csv file and the returned
-    data"""
+    """Holds information on the validity of the csv file and the returned data
+
+    Attributes:
+        valid (bool): Is the CSV file valid
+        error_message (str): Error message if the CSV was not valid
+        data (List[Dict[str, str]]): The extracted data from the CSV
+    """
 
     def __init__(self,
                  valid: bool,
                  error_message: str = None,
                  data: List[Dict[str, str]] = None) -> None:
+        """Create a new `CsvStatus` object
+
+        Args:
+            valid (bool): Is the CSV file valid
+            error_message (str): Error message if the CSV was not valid
+            data (List[Dict[str, str]]): The extracted data from the CSV
         """
-        :param valid: Is the CSV file valid
-        :param error_message: A descriptive message of where and why the
-        error occured
-        :param data: If valid, the data that was read from the csv file
-        """
-        self.valid: bool = valid
-        self.error_message: str = error_message
+        self.valid = valid
+        self.error_message = error_message
         self.data = data
 
 
 def validate_header(csv_file, fields: List[str]) -> CsvStatus:
     """Check if the given fields appear in the csv header
 
-    :param csv_file: The already open file to read
-    :param fields: The list of header columns to search for
-    :rtype: CsvStatus
+    Note:
+        Calls csv_file.seek(0)
 
-    .. note:: Resets the seek location in the file
+    Args:
+        csv_file: The already open file to read
+        fields: The list of header columns to search for
+
+    Returns:
+        A `CsvStatus` object indicating the state of the CSV file
     """
     csv_file.seek(0)
     reader = csv.reader(csv_file, fields, skipinitialspace=True)
@@ -47,6 +57,15 @@ def validate_header(csv_file, fields: List[str]) -> CsvStatus:
 
 
 def validate_csv(fields: List[str], file_path: str) -> CsvStatus:
+    """Validate the CSV file according to the given fields
+
+    Args:
+        fields: The column headers to validate
+        file_path: The path of the CSV file
+
+    Returns:
+        A 'CsvStatus' object indicating the state of the csv file
+    """
     with open(file_path) as csv_file:
         header_result = validate_header(csv_file, fields)
 

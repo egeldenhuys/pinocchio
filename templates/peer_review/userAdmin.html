@@ -2,111 +2,113 @@
 {% load staticfiles %}
 
 {% block extrahead %}
-    <title>User Admin</title>
-    <!--Edit navbar active-->
-    <script>
+<title>User Admin</title>
+<!--Edit navbar active-->
+<script>
         title = "userAdmin";
-    </script>
+
+
+</script>
 {% endblock extrahead %}
 
 {% block context %}
-    <div class="container">
-        {% if messages %}
-            {% for message in messages %}
-            <div class = "alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
-            {% endfor %}
-        {% endif %}
-        <div class="panel-group" id="accordion">
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
-                    <h4 class="panel-title">
-                        <a>
-                            <b>User Registration </b> <b class="caret"></b>
-                        </a>
-                    </h4>
-                </div>
-                {% if new_users or message or possible_users%}
-                    <div id="collapseOne" class="panel-collapse collapse">
+<div class="container">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}"><strong>{{ message }}</strong></div>
+    {% endfor %}
+    {% endif %}
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne">
+                <h4 class="panel-title">
+                    <a>
+                        <b>User Registration </b> <b class="caret"></b>
+                    </a>
+                </h4>
+            </div>
+            {% if new_users or message or possible_users%}
+            <div id="collapseOne" class="panel-collapse collapse">
                 {% else %}
-                    <div id="collapseOne" class="panel-collapse collapse in">
-                {% endif %}
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    {% endif %}
                     <div class="panel-body">
                         {% block content %}
-                            <form action="/userAdmin/submitForm/" method="post"
-                                  onsubmit="return validateUserForm();" class="form-horizontal user-form" id="userForm"
-                                  role="form">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <!-- Title Input -->
-                                    <label for="title" class="col-sm-2 control-label">Title:</label>
+                        <form action="/userAdmin/submitForm/" method="post"
+                              onsubmit="return validateUserForm();" class="form-horizontal user-form" id="userForm"
+                              role="form">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <!-- Title Input -->
+                                <label for="title" class="col-sm-2 control-label">Title:</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.title }}
-                                    </div>
-
-                                    <!-- Initials Input -->
-                                    <label for="initials" class="col-sm-2 control-label">Initials:</label>
-
-                                    <div class="col-sm-3">
-                                        {{ userForm.initials }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.title }}
                                 </div>
 
-                                <div class="form-group">
-                                    <!-- Firsts Name Input -->
-                                    <label for="firstName" class="col-sm-2 control-label">First Name:</label>
+                                <!-- Initials Input -->
+                                <label for="initials" class="col-sm-2 control-label">Initials:</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.name }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.initials }}
+                                </div>
+                            </div>
 
-                                    <!-- Surname Input -->
-                                    <label for="surname" class="col-sm-2 control-label">Surname:</label>
+                            <div class="form-group">
+                                <!-- Firsts Name Input -->
+                                <label for="firstName" class="col-sm-2 control-label">First Name:</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.surname }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.name }}
                                 </div>
 
-                                <div class="form-group">
-                                    <!-- Email Input -->
-                                    <label for="email" class="col-sm-2 control-label">Email:</label>
+                                <!-- Surname Input -->
+                                <label for="surname" class="col-sm-2 control-label">Surname:</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.email }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.surname }}
+                                </div>
+                            </div>
 
-                                    <!--Cell Number Input -->
-                                    <label for="cellNumber" class="col-sm-2 control-label">Cell Number:</label>
+                            <div class="form-group">
+                                <!-- Email Input -->
+                                <label for="email" class="col-sm-2 control-label">Email:</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.cell }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.email }}
                                 </div>
 
-                                <div class="form-group">
-                                    <!-- User Name Input -->
-                                    <label for="userName" class="col-sm-2 control-label">User Name</label>
+                                <!--Cell Number Input -->
+                                <label for="cellNumber" class="col-sm-2 control-label">Cell Number:</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.user_id }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.cell }}
+                                </div>
+                            </div>
 
-                                    <!-- Status Input -->
-                                    <label for="status" class="col-sm-2 control-label">Status:</label>
+                            <div class="form-group">
+                                <!-- User Name Input -->
+                                <label for="userName" class="col-sm-2 control-label">User Name</label>
 
-                                    <div class="col-sm-3">
-                                        {{ userForm.status }}
-                                    </div>
+                                <div class="col-sm-3">
+                                    {{ userForm.user_id }}
                                 </div>
 
-                                <div class="form-group">
-                                    <!-- Submit Button -->
-                                    <div class="col-sm-offset-2 col-sm-10">
-                                        <button type="submit" class="save btn btn-info" id="submitUser">Submit</button>
-                                    </div>
+                                <!-- Status Input -->
+                                <label for="status" class="col-sm-2 control-label">Status:</label>
+
+                                <div class="col-sm-3">
+                                    {{ userForm.status }}
                                 </div>
-                            </form>
+                            </div>
+
+                            <div class="form-group">
+                                <!-- Submit Button -->
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="save btn btn-info" id="submitUser">Submit</button>
+                                </div>
+                            </div>
+                        </form>
                         {% endblock %}
                     </div>
                 </div>
@@ -120,138 +122,88 @@
                         </a>
                     </h4>
                 </div>
-                <!-- TODO(egeldenhuys): rename message to something specific to CSV uploading.
-                                        Only used for CSV uploading. -->
-                {% if message or possible_users%}
-                    <div id="collapseTwo" class="panel-collapse collapse in">
-                {% else %}
-                    <div id="collapseTwo" class="panel-collapse collapse">
-                {% endif %}
-                        <div class="panel-body">
-                            <form class="col-md-6" action="{% url 'submitCSV' %}" method="post" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <p>{{ docForm.non_field_errors }}</p>
+                <!-- TODO(egeldenhuys): rename message to something specific to CSV uploading.-->
+                <div id="collapseTwo" class="panel-collapse collapse {% if message or possible_users%}in{% endif %}">
 
-                                <p>{{ docForm.doc_file.label_tag }} {{ docForm.doc_file.help_text }}</p>
+                    <div class="panel-body">
+                        <form class="col-md-6" action="{% url 'submitCSV' %}" method="post"
+                              enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <p>{{ docForm.non_field_errors }}</p>
 
-                                <p>
-                                    {{ docForm.doc_file.errors }}
-                                    {{ docForm.doc_file }}
-                                </p>
-                                <input type="submit" value="Submit"/>
-                            </form>
+                            <p>{{ docForm.doc_file.label_tag }} {{ docForm.doc_file.help_text }}</p>
 
-                            <!-- TODO(egeldenhuys): Move Email template to different location -->
-                            <form class="col-md-6" action="" method="post" enctype="multipart/form-data">
-                                <p><label for="email_template">Email Template:</label></p>
-                                <input class="save btn btn-info" type="button" data-toggle="modal" data-target="#editEmailTemplate" id="email_template" value="Edit">
-                            </form>
-                        </div>
-                    {%  if possible_users %}
-                        <div class = "panel-body">
+                            <p>
+                                {{ docForm.doc_file.errors }}
+                                {{ docForm.doc_file }}
+                            </p>
+                            <input type="submit" value="Submit"/>
+                        </form>
 
-                                <div class="alert alert-success" role="alert">
-                                    <strong>The CSV file is valid.</strong> The following users will be added:
-                                </div>
-
-                                <!-- TODO(egeldenhuys): Add button to skip to bottom? -->
-                                <div class="alert alert-info" role="alert">
-                                    Confirm the transaction at the bottom of the page
-                                </div>
-
-                                <div class='table-responsive'>
-                                    <table class='table'>
-                                        <thead>
-                                        <tr>
-                                            <th>Title</th>
-                                            <th>Initials</th>
-                                            <th>Name</th>
-                                            <th>Surname</th>
-                                            <th>Email</th>
-                                            <th>Cell</th>
-                                            <th>UserID</th>
-                                        </thead>
-                                        {% for row in possible_users %}
-                                            <tr>
-                                                <td>{{ row.title }}</td>
-                                                <td>{{ row.initials }}</td>
-                                                <td>{{ row.name }}</td>
-                                                <td>{{ row.surname }}</td>
-                                                <td>{{ row.email }}</td>
-                                                <td>{{ row.cell }}</td>
-                                                <td>{{ row.user_id }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </table>
-                                </div>
-                                <form class="float-right" action="{% url 'submitCSV_confirm' %}" method="post" enctype="multipart/form-data">
-                                    <input type="submit" value="Confirm"/>
-                                </form>
-
-                    {% endif %}
-                        {% if message %}
-                            <div class = "panel-body">
-                                {% if error_code == 0 %}
-                                    <div class="alert alert-danger" role="alert">
-                                        <p>{{ message }}</p>
-                                    </div>
-                                {% elif error_code == 4 %}
-                                    The following user already exists.
-                                    </div>
-                                    <div class='table-responsive'>
-                                        <table class='table'>
-                                            <thead>
-                                            <tr>
-                                                <th>Title</th>
-                                                <th>Initials</th>
-                                                <th>Name</th>
-                                                <th>Surname</th>
-                                                <th>Email</th>
-                                                <th>Cell</th>
-                                                <th>UserID</th>
-                                            </thead>
-                                            <tr>
-                                                <td>
-                                                    {{ row.0 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.1 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.2 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.3 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.4 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.5 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.6 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.7 }}
-                                                </td>
-                                                <td>
-                                                    {{ row.8 }}
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        {% endif %}
-                        {%  if new_users or possible_users %}
+                        <!-- TODO(egeldenhuys): Move Email template to different location -->
+                        <form class="col-md-6" action="" method="post" enctype="multipart/form-data">
+                            <p><label for="email_template">Email Template:</label></p>
+                            <input class="save btn btn-info" type="button" data-toggle="modal"
+                                   data-target="#editEmailTemplate" id="email_template" value="Edit">
+                        </form>
                     </div>
+
+                    <div class="panel-body">
+
+                        {% if error_code != 0 and error_code != 4 and possible_users %}
+                        <div class="alert alert-success" role="alert">
+                            <strong>The CSV file is valid.</strong> The following users will be added:
+                        </div>
+
+                        <!-- TODO(egeldenhuys): Add button to skip to bottom? -->
+                        <div class="alert alert-info" role="alert">
+                            Confirm the transaction at the bottom of the page
+                        </div>
+                        {% elif error_code == 0 or error_code == 4 %}
+
+                        <div class="alert alert-danger" role="alert">
+                            {{ message }}
+                        </div>
                         {% endif %}
+
+                        {% if possible_users %}
+                        <div class='table-responsive'>
+                            <table class='table'>
+                                <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Initials</th>
+                                    <th>Name</th>
+                                    <th>Surname</th>
+                                    <th>Email</th>
+                                    <th>Cell</th>
+                                    <th>UserID</th>
+                                </thead>
+                                {% for row in possible_users %}
+                                <tr>
+                                    <td>{{ row.title }}</td>
+                                    <td>{{ row.initials }}</td>
+                                    <td>{{ row.name }}</td>
+                                    <td>{{ row.surname }}</td>
+                                    <td>{{ row.email }}</td>
+                                    <td>{{ row.cell }}</td>
+                                    <td>{{ row.user_id }}</td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        {% endif %}
+                        <form action="{% url 'submitCSV_confirm' %}" method="post"
+                              enctype="multipart/form-data">
+                            <input type="submit" value="Confirm"/>
+                        </form>
+                    </div>
                 </div>
             </div>
 
             <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                     data-target="#collapseThree">
                     <h4 class="panel-title">
                         <a>
                             Maintain Users <b class="caret"></b>
@@ -285,33 +237,40 @@
                                 </thead>
                                 <tbody>
                                 {% for user in users %}
-                                    <tr id="user{{ user.pk }}">
-                                        <td data-id="user_id">{{ user.user_id }}</td>
-                                        <td data-id="title">{{ user.title }}</td>
-                                        <td data-id="initials">{{ user.initials }}</td>
-                                        <td data-id="name">{{ user.name }}</td>
-                                        <td data-id="surname">{{ user.surname }}</td>
-                                        <td data-id="cell">{{ user.cell }}</td>
-                                        <td data-id="email">{{ user.email }}</td>
-                                        <td data-id="status">{{ user.status }}</td>
-                                        <td>
-                                            <a type="button" class="btn btn-success btn-xs" href="/userAdmin/userProfile/{{ user.pk }}">R</a>
-                                        </td>
-                                        <td>
-                                            <button type="button" name="edit" class='btn btn-success btn-xs edit' data-toggle="modal" data-target="#editModal" data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
-                                                &#9998;
-                                            </button>
-                                        </td>
+                                <tr id="user{{ user.pk }}">
+                                    <td data-id="user_id">{{ user.user_id }}</td>
+                                    <td data-id="title">{{ user.title }}</td>
+                                    <td data-id="initials">{{ user.initials }}</td>
+                                    <td data-id="name">{{ user.name }}</td>
+                                    <td data-id="surname">{{ user.surname }}</td>
+                                    <td data-id="cell">{{ user.cell }}</td>
+                                    <td data-id="email">{{ user.email }}</td>
+                                    <td data-id="status">{{ user.status }}</td>
+                                    <td>
+                                        <a type="button" class="btn btn-success btn-xs"
+                                           href="/userAdmin/userProfile/{{ user.pk }}">R</a>
+                                    </td>
+                                    <td>
+                                        <button type="button" name="edit" class='btn btn-success btn-xs edit'
+                                                data-toggle="modal" data-target="#editModal"
+                                                data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}"
+                                                data-pk="{{ user.pk }}">
+                                            &#9998;
+                                        </button>
+                                    </td>
 
-                                        <td>
-                                            <input type="checkbox" class="multiRemove" data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
-                                        </td>
-                                    </tr>
+                                    <td>
+                                        <input type="checkbox" class="multiRemove" data-id="{{ user.user_id }}"
+                                               data-pk="{{ user.pk }}">
+                                    </td>
+                                </tr>
                                 {% endfor %}
                                 </tbody>
                             </table>
                             <br>
-                            <button type="button" name="remove" id="remove" class='btn btn-warning pull-right' data-csrf="{{ csrf_token }}" data-id="{{ user.user_id }}" data-pk="{{ user.pk }}">
+                            <button type="button" name="remove" id="remove" class='btn btn-warning pull-right'
+                                    data-csrf="{{ csrf_token }}" data-id="{{ user.user_id }}"
+                                    data-pk="{{ user.pk }}">
                                 Delete Users
                             </button>
                         </div>
@@ -323,7 +282,6 @@
 
     {% include "peer_review/userEditModal.html" %}
 
-<!-- TODO(egeldenhuys): Move the Email template to a different accordion. Unexpected here -->
     <div id="editEmailTemplate" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -336,22 +294,27 @@
                         <div class="form-group">
                             <label for="user_id">Email Text:</label>
                             <p>
-                                Please use {first_name}, {last_name}, {otp}, {datetime} and {login} to indicate the positioning of the user's first name, last name, one time password,
+                                Please use {first_name}, {last_name}, {otp}, {datetime} and {login} to indicate the
+                                positioning of the user's first name, last name, one time password,
                                 time of registration and login details, example:<br><br>
-                                Hello {first_name} {last_name} your username is {login} and your OTP is {otp}. It expires in 7 days from {datetime}
+                                Hello {first_name} {last_name} your username is {login} and your OTP is {otp}. It
+                                expires in 7 days from {datetime}
                             </p>
                             <textarea id="emailText" rows="15" type="text" class="form-control" id="email_text">{{ email_text }}</textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-csrf='{{ csrf_token }}' id="updateEmailConfirm" data-dismiss="modal">Update</button>
+                    <button type="button" class="btn btn-success" data-csrf='{{ csrf_token }}'
+                            id="updateEmailConfirm" data-dismiss="modal">Update
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="{% static "peer_review/search.js" %}"></script>
+    <script src="{% static " peer_review
+    /search.js" %}"></script>
     <script src="{% static "peer_review/validation.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
@@ -427,6 +390,8 @@
             }
         });
 
+
+
     </script>
 
-{% endblock context %}
+    {% endblock context %}

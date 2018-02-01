@@ -8,17 +8,15 @@ from typing import Dict
 class CsvUtilsTest(TestCase):
     """Tests relating to the csvUtils module
 
-    Only the existence of error_message is tested
+    Note:
+        Only the existence of error_message is tested
 
-    .. TODO(egeldenhuys) Remove inconsistent style from test csv files. Isolate styles
-    to one test. + Test if extra header cols are ignored if not in fields list
+
+    TODO(egeldenhuys): Test styles independently
+    TODO(egeldenhuys): Test if `headers` not in `fields` are ignored
     """
 
     def setUp(self):
-        """
-        Define fields we want to test here
-        :return:
-        """
         module_dir = os.path.dirname(__file__)
         self.csv_dir: str = module_dir + "/test_csvUtils"
         self.fields: list = [
