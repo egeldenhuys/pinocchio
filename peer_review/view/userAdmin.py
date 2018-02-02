@@ -10,7 +10,7 @@ from peer_review.forms import DocumentForm, UserForm
 from peer_review.models import User, Document
 from peer_review.view.userManagement import create_user_send_otp
 from peer_review.modules.csv_utils import CsvStatus
-import peer_review.modules.csv_utils as CsvUtils
+import peer_review.modules.csv_utils as csv_utils
 
 # TODO(egeldenhuys): Rename this module to relate to user CSV upload
 # TODO(egeldenhuys): Test the functions in this module
@@ -73,7 +73,7 @@ def confirm_csv(request) -> HttpResponse:
             confirm: int = int(request.POST['confirm'])
             file_path = os.path.join(base_dir, request_id)
             if confirm == 1:
-                status: CsvStatus = CsvUtils.validate_csv(fields, file_path)
+                status: CsvStatus = csv_utils.validate_csv(fields, file_path)
 
                 if status.valid:
                     if not users_exist(status.data):
@@ -226,7 +226,7 @@ def submit_csv(request) -> HttpResponse:
         # [1:] Strip the leading /
         file_path: str = csv_file.doc_file.url[1:]
 
-        result: CsvStatus = CsvUtils.validate_csv(fields, file_path=file_path)
+        result: CsvStatus = csv_utils.validate_csv(fields, file_path=file_path)
 
         if result.valid:
             existing_users: List[Dict[str, str]] = list()
