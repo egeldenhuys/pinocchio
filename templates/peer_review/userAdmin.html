@@ -5,9 +5,7 @@
 <title>User Admin</title>
 <!--Edit navbar active-->
 <script>
-        title = "userAdmin";
-
-
+    title = "userAdmin";
 
 
 </script>
@@ -110,113 +108,20 @@
                                     <button type="submit" class="save btn btn-info" id="submitUser">Submit</button>
                                 </div>
                             </div>
+
+                            <!-- TODO(egeldenhuys): Move Email template to different location -->
+                            <form class="col-md-6" action="" method="post" enctype="multipart/form-data">
+                                <p><label for="email_template">Email Template:</label></p>
+                                <input class="save btn btn-info" type="button" data-toggle="modal"
+                                       data-target="#editEmailTemplate" id="email_template" value="Edit">
+                            </form>
                         </form>
                         {% endblock %}
                     </div>
                 </div>
             </div>
 
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
-                    <h4 class="panel-title">
-                        <a>
-                            User Registration Via CSV File <b class="caret"></b>
-                        </a>
-                    </h4>
-                </div>
-                <!-- TODO(egeldenhuys): rename message to something specific to CSV uploading.-->
-                <div id="collapseTwo" class="panel-collapse collapse {% if message or possible_users%}in{% endif %}">
-
-                    <div class="panel-body">
-                        <form class="col-md-6" action="{% url 'submitCSV' %}" method="post"
-                              enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <p>{{ docForm.non_field_errors }}</p>
-
-                            <p>{{ docForm.doc_file.label_tag }} {{ docForm.doc_file.help_text }}</p>
-
-                            <p>
-                                {{ docForm.doc_file.errors }}
-                                {{ docForm.doc_file }}
-                            </p>
-                            <input type="submit" value="Submit"/>
-                        </form>
-
-                        <!-- TODO(egeldenhuys): Move Email template to different location -->
-                        <form class="col-md-6" action="" method="post" enctype="multipart/form-data">
-                            <p><label for="email_template">Email Template:</label></p>
-                            <input class="save btn btn-info" type="button" data-toggle="modal"
-                                   data-target="#editEmailTemplate" id="email_template" value="Edit">
-                        </form>
-                    </div>
-
-                    <!-- existance of error_code indicates we recieved a response
-                    from the submit_csv() function -->
-                    {% if error_code != None %}
-                    <div class="panel-body">
-
-                        {% if error_code == 0 %}
-                        <div class="alert alert-success" role="alert">
-                            {{ message }}
-                        </div>
-
-                            {% if possible_users %}
-                            <!-- TODO(egeldenhuys): Add button to skip to bottom? -->
-                            <div class="alert alert-info" role="alert">
-                                Confirm the transaction at the bottom of the page
-                            </div>
-                            {% endif %}
-
-                        {% else %}
-                        <div class="alert alert-danger" role="alert">
-                            {{ message }}
-                        </div>
-                        {% endif %}
-
-                        {% if possible_users %}
-                        <div class='table-responsive'>
-                            <table class='table'>
-                                <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Initials</th>
-                                    <th>Name</th>
-                                    <th>Surname</th>
-                                    <th>Email</th>
-                                    <th>Cell</th>
-                                    <th>UserID</th>
-                                </thead>
-                                {% for row in possible_users %}
-                                <tr>
-                                    <td>{{ row.title }}</td>
-                                    <td>{{ row.initials }}</td>
-                                    <td>{{ row.name }}</td>
-                                    <td>{{ row.surname }}</td>
-                                    <td>{{ row.email }}</td>
-                                    <td>{{ row.cell }}</td>
-                                    <td>{{ row.user_id }}</td>
-                                </tr>
-                                {% endfor %}
-                            </table>
-                        </div>
-                        {% endif %}
-
-                        {% if error_code == 0 and possible_users %}
-                        <form action="{% url 'submitCSV_confirm' %}" method="post"
-                              enctype="multipart/form-data">
-                            {% csrf_token %}
-
-                            <input type="hidden" name="request_id" value="{{request_id}}"><br>
-                            <input id="confirm" type="hidden" name="confirm" value="0"><br>
-
-                            <input type="submit" value="Cancel" onclick="document.getElementById('confirm').value='0'">
-                            <input type="submit" value="Confirm" onclick="document.getElementById('confirm').value='1'">
-                        </form>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+            {% include "peer_review/csvUploadComponent.html" %}
 
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
@@ -333,7 +238,7 @@
     <script src="{% static 'peer_review/search.js' %}"></script>
     <script src="{% static 'peer_review/validation.js' %}"></script>
     <script type="text/javascript">
-        $(document).ready(function() {
+        $(document).ready(function () {
             const table = $("#users").DataTable({
                 "initComplete": function () {
                     // Hook update user buttons
@@ -347,7 +252,7 @@
             });
         });
 
-        $("#updateEmailConfirm").on("click", function() {
+        $("#updateEmailConfirm").on("click", function () {
             var emailText = $("#emailText").val();
             var token = $(this).data("csrf");
 
@@ -360,7 +265,7 @@
                 type: 'POST',
                 url: '/userAdmin/updateEmail/',
                 data: data,
-                success: function() {
+                success: function () {
                     alert("Updated");
                 }
             });
@@ -370,7 +275,7 @@
             var toDelete = [];
             var token = $(this).data("csrf");
 
-            $("input:checked.multiRemove").each(function() {
+            $("input:checked.multiRemove").each(function () {
                 if (this.checked) {
                     toDelete.push({
                         "id": $(this).data("id"),
@@ -382,12 +287,12 @@
             var toDeleteMessage = "Are you sure you want to delete these users:\n";
             var toDeleteList = [];
 
-            $.each(toDelete, function(index, value) {
+            $.each(toDelete, function (index, value) {
                 toDeleteMessage += value.id + "\n";
                 toDeleteList.push(value.pk);
             });
 
-            if(confirm(toDeleteMessage)) {
+            if (confirm(toDeleteMessage)) {
                 var data = {
                     'toDelete': toDeleteList,
                     'csrfmiddlewaretoken': token
@@ -397,17 +302,14 @@
                     type: 'POST',
                     url: '/userAdmin/delete/',
                     data: data,
-                    success: function() {
-                        $.each(toDeleteList, function(index, value) {
+                    success: function () {
+                        $.each(toDeleteList, function (index, value) {
                             $("#users > tbody > tr#" + value).fadeOut(500);
                         });
                     }
                 });
             }
         });
-
-
-
 
 
     </script>

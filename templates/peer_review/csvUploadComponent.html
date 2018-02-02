@@ -1,0 +1,110 @@
+<!-- Generic component for uploading User and Team csv files
+
+Args in csv_upload_args:
+    title (str): The title of the accordion
+    doc_form (?): Django form for uploading the csv file
+    message (str): Success or error message to display
+    request_id (str): Unique key sent from server.
+        Used to complete/cancel the transaction
+    possible_users (List[Dict[str, str]]):
+        A list of users/teams to be added, or already existing, if valid
+    error_code (int): Indicates success or different error types.
+        0: Success
+        1: CSV error
+        2: Users/Teams already exist
+        3: File upload error
+    -->
+
+<div class="panel panel-default">
+                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                    <h4 class="panel-title">
+                        <a>
+                            {{ csv_upload_args.title }} <b class="caret"></b>
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse {% if message or possible_users%}in{% endif %}">
+
+                    <div class="panel-body">
+                        <form class="col-md-6" action="{% url 'submitCSV' %}" method="post"
+                              enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <p>{{ csv_upload_args.doc_form.non_field_errors }}</p>
+
+                            <p>{{ csv_upload_args.doc_form.doc_file.label_tag }} {{ csv_upload_args.doc_form.doc_file.help_text }}</p>
+
+                            <p>
+                                {{ csv_upload_args.doc_form.doc_file.errors }}
+                                {{ csv_upload_args.doc_form.doc_file }}
+                            </p>
+                            <input type="submit" value="Submit"/>
+                        </form>
+                    </div>
+
+                    <!-- existance of error_code indicates we recieved a response
+                    from the submit_csv() function -->
+                    {% if csv_upload_args.error_code != None %}
+                    <div class="panel-body">
+
+                        {% if csv_upload_args.error_code == 0 %}
+                        <div class="alert alert-success" role="alert">
+                            {{ csv_upload_args.message }}
+                        </div>
+
+                        {% if csv_upload_args.possible_users %}
+                        <!-- TODO(egeldenhuys): Add button to skip to bottom? -->
+                        <div class="alert alert-info" role="alert">
+                            Confirm the transaction at the bottom of the page
+                        </div>
+                        {% endif %}
+
+                        {% else %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ csv_upload_args.message }}
+                        </div>
+                        {% endif %}
+
+                        {% if csv_upload_args.possible_users %}
+                        <div class='table-responsive'>
+                            <table class='table'>
+                                <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Initials</th>
+                                    <th>Name</th>
+                                    <th>Surname</th>
+                                    <th>Email</th>
+                                    <th>Cell</th>
+                                    <th>UserID</th>
+                                </thead>
+                                {% for row in csv_upload_args.possible_users %}
+                                <tr>
+                                    <td>{{ row.title }}</td>
+                                    <td>{{ row.initials }}</td>
+                                    <td>{{ row.name }}</td>
+                                    <td>{{ row.surname }}</td>
+                                    <td>{{ row.email }}</td>
+                                    <td>{{ row.cell }}</td>
+                                    <td>{{ row.user_id }}</td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        {% endif %}
+
+                        {% if csv_upload_args.error_code == 0 and csv_upload_args.possible_users %}
+                        <form action="{% url 'submitCSV_confirm' %}" method="post"
+                              enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <input type="hidden" name="request_id" value="{{csv_upload_args.request_id}}"><br>
+                            <input id="csv_upload_args_confirm" type="hidden" name="confirm" value="0"><br>
+
+                            <input type="submit" value="Cancel" onclick="document.getElementById('csv_upload_args_confirm').value='0'">
+                            <input type="submit" value="Confirm" onclick="document.getElementById('csv_upload_args_confirm').value='1'">
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>

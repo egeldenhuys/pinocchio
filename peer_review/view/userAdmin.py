@@ -117,7 +117,9 @@ def init_context_data() -> Dict[str, Any]:
 
     context_data['users'] = User.objects.all
     context_data['user_form'] = UserForm()
-    context_data['docForm'] = DocumentForm()
+
+    context_data['csv_upload_args']: Dict[str, Any] = dict()
+    context_data['csv_upload_args']['doc_form'] = DocumentForm()
 
     module_dir = os.path.dirname(__file__)
     file_path = os.path.join(module_dir)
@@ -213,8 +215,9 @@ def submit_csv(request) -> HttpResponse:
         'title', 'initials', 'name', 'surname', 'cell', 'email', 'user_id'
     ]
 
-    context_data: Dict[str, Any] = init_context_data()
-    context_data['error_code'] = 3
+    page_context_data: Dict[str, Any] = init_context_data()
+    csv_context: Dict[str, Any] = page_context_data['csv_upload_args']
+    csv_context['error_code'] = 3
 
     if request.method == 'POST' and \
             DocumentForm(request.POST, request.FILES).is_valid():
@@ -236,25 +239,25 @@ def submit_csv(request) -> HttpResponse:
                     existing_users.append(user)
 
             if existing_users:
-                context_data[
+                csv_context[
                     'message'] = 'The following user_id(s) already exist'
-                context_data['possible_users'] = existing_users
-                context_data['error_code'] = 2
+                csv_context['possible_users'] = existing_users
+                csv_context['error_code'] = 2
             else:
-                context_data[
+                csv_context[
                     'message'] = 'The CSV file is valid. The following users will be added:'
-                context_data['possible_users'] = result.data
-                context_data['error_code'] = 0
-                context_data['request_id'] = path_leaf(csv_file.doc_file.url)
+                csv_context['possible_users'] = result.data
+                csv_context['error_code'] = 0
+                csv_context['request_id'] = path_leaf(csv_file.doc_file.url)
         else:
-            context_data['message'] = result.error_message
-            context_data['error_code'] = 1
+            csv_context['message'] = result.error_message
+            csv_context['error_code'] = 1
 
-        if context_data['error_code'] != 0 and context_data['error_code'] != 3:
+        if csv_context['error_code'] != 0 and csv_context['error_code'] != 3:
             if os.path.isfile(file_path):
                 os.remove(file_path)
     else:
-        context_data['message'] = 'Error uploading document. Please try again'
-        context_data['error_code'] = 1
+        csv_context['message'] = 'Error uploading document. Please try again'
+        csv_context['error_code'] = 1
 
-    return render(request, 'peer_review/userAdmin.html', context_data)
+    return render(request, 'peer_review/userAdmin.html', page_context_data)

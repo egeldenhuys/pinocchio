@@ -47,7 +47,7 @@ urlpatterns = [
     url(r'^teamMembers/$', get_team_members, name='teamMembers'),
     url(r'^accountDetails/$', account_details, name='accountDetails'),
     url(r'^accountDetails/(?P<user_id>[a-zA-Z0-9]+)/?$', member_details, name='memberDetails'),
-
+    # TODO(egeldenhuys): */SubmitCsv
     url(r'^$', views.index, name='index'),
     url(r'^userAdmin/submitForm/?$', peer_review.view.userManagement.submit_new_user_form,
         name='submitUserForm'),
