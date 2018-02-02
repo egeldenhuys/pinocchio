@@ -1,3 +1,5 @@
+"""Functions for parsing and validating CSV files"""
+
 from typing import Dict, List
 import csv
 

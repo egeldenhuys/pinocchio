@@ -1,36 +1,19 @@
-import csv
+"""Functions for uploading User CSV files"""
+
 import os
-from django.http import HttpResponseRedirect
+from typing import List, Dict, Any
+import ntpath
 from django.http import HttpResponse
 from django.shortcuts import render
 from peer_review.decorators.adminRequired import admin_required
 from peer_review.forms import DocumentForm, UserForm
 from peer_review.models import User, Document
-from peer_review.view.userFunctions import user_error
 from peer_review.view.userManagement import create_user_send_otp
-from typing import List, Dict, Any
-from peer_review.modules.csvUtils import CsvStatus
-import re
-import ntpath
-import peer_review.modules.csvUtils as csv_utils
+from peer_review.modules.csv_utils import CsvStatus
+import peer_review.modules.csv_utils as CsvUtils
 
-# TODO(egeldenhuys): Rename this file. Only used for CSV upload of users.
-""" Process
-# CSV Upload:
-    1. User sends CSV file in Post request. validate_csv()
-    2. We validate the CSV file and send back:
-        - The user list for a preview
-        - Error messages
-        The user list object should now be in browser memory
-    3. User clicks Confirm button. User_list is sent back to server
-        Users are added and validity confirmed yet again.
-        - Report error or success
-
-
-validate_csv(csv_path: str) -> render
-confirm(user_list: List[Dict[str, str]]) -> render
-
-"""
+# TODO(egeldenhuys): Rename this module to relate to user CSV upload
+# TODO(egeldenhuys): Test the functions in this module
 
 
 def create_user(user: Dict[str, str]) -> bool:
@@ -52,10 +35,7 @@ def create_user(user: Dict[str, str]) -> bool:
         user_cell=user['cell'],
         user_email=user['email'])
 
-    if django_user:
-        return True
-    else:
-        return False
+    return bool(django_user)
 
 
 @admin_required
@@ -93,7 +73,7 @@ def confirm_csv(request) -> HttpResponse:
             confirm: int = int(request.POST['confirm'])
             file_path = os.path.join(base_dir, request_id)
             if confirm == 1:
-                status: CsvStatus = csv_utils.validate_csv(fields, file_path)
+                status: CsvStatus = CsvUtils.validate_csv(fields, file_path)
 
                 if status.valid:
                     if not users_exist(status.data):
@@ -111,7 +91,8 @@ def confirm_csv(request) -> HttpResponse:
                     else:
                         context_data['error_code'] = 1
                         context_data[
-                            'message'] = 'A user in the csv already exists in the database. Please retry for more information.'
+                            'message'] = 'A user in the csv already exists in the database. \
+                            Please retry for more information.'
                 else:
                     context_data['error_code'] = 1
                     context_data[
@@ -189,7 +170,7 @@ def user_exists(user_id: str) -> bool:
     result: bool = False
     try:
         user = User.objects.get(user_id=user_id)
-        result = True
+        return bool(user)
     except Exception:
         # User does not exist
         pass
@@ -245,7 +226,7 @@ def submit_csv(request) -> HttpResponse:
         # [1:] Strip the leading /
         file_path: str = csv_file.doc_file.url[1:]
 
-        result: CsvStatus = csv_utils.validate_csv(fields, file_path=file_path)
+        result: CsvStatus = CsvUtils.validate_csv(fields, file_path=file_path)
 
         if result.valid:
             existing_users: List[Dict[str, str]] = list()
@@ -254,7 +235,7 @@ def submit_csv(request) -> HttpResponse:
                 if user_exists(user['user_id']):
                     existing_users.append(user)
 
-            if len(existing_users) > 0:
+            if existing_users:
                 context_data[
                     'message'] = 'The following user_id(s) already exist'
                 context_data['possible_users'] = existing_users

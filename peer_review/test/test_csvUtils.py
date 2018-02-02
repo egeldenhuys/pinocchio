@@ -1,5 +1,5 @@
 from django.test import TestCase
-import peer_review.modules.csvUtils as csv_utils
+import peer_review.modules.csv_utils as csv_utils
 import os
 
 from typing import Dict
