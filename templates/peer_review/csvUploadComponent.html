@@ -23,7 +23,7 @@ Args in csv_upload_args:
                         </a>
                     </h4>
                 </div>
-                <div id="collapseTwo" class="panel-collapse collapse {% if message or possible_users%}in{% endif %}">
+                <div id="collapseTwo" class="panel-collapse collapse {% if csv_upload_args.message or csv_upload_args.possible_users%}in{% endif %}">
 
                     <div class="panel-body">
                         <form class="col-md-6" action="{% url 'submitCSV' %}" method="post"

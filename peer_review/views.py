@@ -176,7 +176,8 @@ def user_list(request):
 
     reset_link = '/recoverPassword/' + sign_user_id(request.user.user_id)
     return render(request, 'peer_review/userAdmin.html',
-                  {'users': users, 'userForm': user_form, 'docForm': doc_form, 'email_text': email_text,
+                  {'users': users, 'userForm': user_form, 'csv_upload_args': {'doc_form': doc_form,
+                                                                              'title': 'Register users via CSV'}, 'email_text': email_text,
                    'reset_link': reset_link})
 
 

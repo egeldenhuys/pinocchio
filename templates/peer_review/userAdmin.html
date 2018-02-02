@@ -27,291 +27,287 @@
                     </a>
                 </h4>
             </div>
-            {% if new_users or message or possible_users%}
-            <div id="collapseOne" class="panel-collapse collapse">
-                {% else %}
-                <div id="collapseOne" class="panel-collapse collapse in">
-                    {% endif %}
-                    <div class="panel-body">
-                        {% block content %}
-                        <form action="/userAdmin/submitForm/" method="post"
-                              onsubmit="return validateUserForm();" class="form-horizontal user-form" id="userForm"
-                              role="form">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <!-- Title Input -->
-                                <label for="title" class="col-sm-2 control-label">Title:</label>
-
-                                <div class="col-sm-3">
-                                    {{ userForm.title }}
-                                </div>
-
-                                <!-- Initials Input -->
-                                <label for="initials" class="col-sm-2 control-label">Initials:</label>
-
-                                <div class="col-sm-3">
-                                    {{ userForm.initials }}
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <!-- Firsts Name Input -->
-                                <label for="firstName" class="col-sm-2 control-label">First Name:</label>
-
-                                <div class="col-sm-3">
-                                    {{ userForm.name }}
-                                </div>
-
-                                <!-- Surname Input -->
-                                <label for="surname" class="col-sm-2 control-label">Surname:</label>
-
-                                <div class="col-sm-3">
-                                    {{ userForm.surname }}
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <!-- Email Input -->
-                                <label for="email" class="col-sm-2 control-label">Email:</label>
-
-                                <div class="col-sm-3">
-                                    {{ userForm.email }}
-                                </div>
-
-                                <!--Cell Number Input -->
-                                <label for="cellNumber" class="col-sm-2 control-label">Cell Number:</label>
-
-                                <div class="col-sm-3">
-                                    {{ userForm.cell }}
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <!-- User Name Input -->
-                                <label for="userName" class="col-sm-2 control-label">User Name</label>
-
-                                <div class="col-sm-3">
-                                    {{ userForm.user_id }}
-                                </div>
-
-                                <!-- Status Input -->
-                                <label for="status" class="col-sm-2 control-label">Status:</label>
-
-                                <div class="col-sm-3">
-                                    {{ userForm.status }}
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <!-- Submit Button -->
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" class="save btn btn-info" id="submitUser">Submit</button>
-                                </div>
-                            </div>
-
-                            <!-- TODO(egeldenhuys): Move Email template to different location -->
-                            <form class="col-md-6" action="" method="post" enctype="multipart/form-data">
-                                <p><label for="email_template">Email Template:</label></p>
-                                <input class="save btn btn-info" type="button" data-toggle="modal"
-                                       data-target="#editEmailTemplate" id="email_template" value="Edit">
-                            </form>
-                        </form>
-                        {% endblock %}
-                    </div>
-                </div>
-            </div>
-
-            {% include "peer_review/csvUploadComponent.html" %}
-
-            <div class="panel panel-default">
-                <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
-                     data-target="#collapseThree">
-                    <h4 class="panel-title">
-                        <a>
-                            Maintain Users <b class="caret"></b>
-                        </a>
-                    </h4>
-                </div>
-
-                <div id="collapseThree" class="panel-collapse collapse">
-                    <div class="panel-body">
-
-                        <!-- <input type="text" class="form-control" id="search" placeholder="Search"
-                               onkeyup="showResult(this.value)"> -->
-
-                        <div>
-                            <!-- ToDo fix sortable -->
-                            <table id='users'>
-                                <thead>
-                                <tr>
-                                    <th>User Name</th>
-                                    <th>Title</th>
-                                    <th>Initials</th>
-                                    <th>First Name</th>
-                                    <th>Surname</th>
-                                    <th data-defaultsort='disabled'>Cell</th>
-                                    <th>Email</th>
-                                    <th>Status</th>
-                                    <th>View rounds</th>
-                                    <th>Edit</th>
-                                    <th>Remove</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for user in users %}
-                                <tr id="user{{ user.pk }}">
-                                    <td data-id="user_id">{{ user.user_id }}</td>
-                                    <td data-id="title">{{ user.title }}</td>
-                                    <td data-id="initials">{{ user.initials }}</td>
-                                    <td data-id="name">{{ user.name }}</td>
-                                    <td data-id="surname">{{ user.surname }}</td>
-                                    <td data-id="cell">{{ user.cell }}</td>
-                                    <td data-id="email">{{ user.email }}</td>
-                                    <td data-id="status">{{ user.status }}</td>
-                                    <td>
-                                        <a type="button" class="btn btn-success btn-xs"
-                                           href="/userAdmin/userProfile/{{ user.pk }}">R</a>
-                                    </td>
-                                    <td>
-                                        <button type="button" name="edit" class='btn btn-success btn-xs edit'
-                                                data-toggle="modal" data-target="#editModal"
-                                                data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}"
-                                                data-pk="{{ user.pk }}">
-                                            &#9998;
-                                        </button>
-                                    </td>
-
-                                    <td>
-                                        <input type="checkbox" class="multiRemove" data-id="{{ user.user_id }}"
-                                               data-pk="{{ user.pk }}">
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                            <br>
-                            <button type="button" name="remove" id="remove" class='btn btn-warning pull-right'
-                                    data-csrf="{{ csrf_token }}" data-id="{{ user.user_id }}"
-                                    data-pk="{{ user.pk }}">
-                                Delete Users
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% include "peer_review/userEditModal.html" %}
-
-    <div id="editEmailTemplate" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Edit Email Template</h4>
-                </div>
-                <div class="modal-body">
-                    <form role="form" id="modalEmailForm">
+            <div id="collapseOne" class="panel-collapse collapse {% if not csv_upload_args.error_code %}in{% endif %}">
+                <div class="panel-body">
+                    {% block content %}
+                    <form action="/userAdmin/submitForm/" method="post"
+                          onsubmit="return validateUserForm();" class="form-horizontal user-form" id="userForm"
+                          role="form">
+                        {% csrf_token %}
                         <div class="form-group">
-                            <label for="user_id">Email Text:</label>
-                            <p>
-                                Please use {first_name}, {last_name}, {otp}, {datetime} and {login} to indicate the
-                                positioning of the user's first name, last name, one time password,
-                                time of registration and login details, example:<br><br>
-                                Hello {first_name} {last_name} your username is {login} and your OTP is {otp}. It
-                                expires in 7 days from {datetime}
-                            </p>
-                            <textarea id="emailText" rows="15" type="text" class="form-control" id="email_text">{{ email_text }}</textarea>
+                            <!-- Title Input -->
+                            <label for="title" class="col-sm-2 control-label">Title:</label>
+
+                            <div class="col-sm-3">
+                                {{ userForm.title }}
+                            </div>
+
+                            <!-- Initials Input -->
+                            <label for="initials" class="col-sm-2 control-label">Initials:</label>
+
+                            <div class="col-sm-3">
+                                {{ userForm.initials }}
+                            </div>
                         </div>
+
+                        <div class="form-group">
+                            <!-- Firsts Name Input -->
+                            <label for="firstName" class="col-sm-2 control-label">First Name:</label>
+
+                            <div class="col-sm-3">
+                                {{ userForm.name }}
+                            </div>
+
+                            <!-- Surname Input -->
+                            <label for="surname" class="col-sm-2 control-label">Surname:</label>
+
+                            <div class="col-sm-3">
+                                {{ userForm.surname }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <!-- Email Input -->
+                            <label for="email" class="col-sm-2 control-label">Email:</label>
+
+                            <div class="col-sm-3">
+                                {{ userForm.email }}
+                            </div>
+
+                            <!--Cell Number Input -->
+                            <label for="cellNumber" class="col-sm-2 control-label">Cell Number:</label>
+
+                            <div class="col-sm-3">
+                                {{ userForm.cell }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <!-- User Name Input -->
+                            <label for="userName" class="col-sm-2 control-label">User Name</label>
+
+                            <div class="col-sm-3">
+                                {{ userForm.user_id }}
+                            </div>
+
+                            <!-- Status Input -->
+                            <label for="status" class="col-sm-2 control-label">Status:</label>
+
+                            <div class="col-sm-3">
+                                {{ userForm.status }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <!-- Submit Button -->
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="save btn btn-info" id="submitUser">Submit</button>
+                            </div>
+                        </div>
+
+                        <!-- TODO(egeldenhuys): Move Email template to different location -->
+                        <form class="col-md-6" action="" method="post" enctype="multipart/form-data">
+                            <p><label for="email_template">Email Template:</label></p>
+                            <input class="save btn btn-info" type="button" data-toggle="modal"
+                                   data-target="#editEmailTemplate" id="email_template" value="Edit">
+                        </form>
                     </form>
+                    {% endblock %}
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-csrf='{{ csrf_token }}'
-                            id="updateEmailConfirm" data-dismiss="modal">Update
-                    </button>
+            </div>
+        </div>
+
+        {% include "peer_review/csvUploadComponent.html" %}
+
+        <div class="panel panel-default">
+            <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"
+                 data-target="#collapseThree">
+                <h4 class="panel-title">
+                    <a>
+                        Maintain Users <b class="caret"></b>
+                    </a>
+                </h4>
+            </div>
+
+            <div id="collapseThree" class="panel-collapse collapse">
+                <div class="panel-body">
+
+                    <!-- <input type="text" class="form-control" id="search" placeholder="Search"
+                           onkeyup="showResult(this.value)"> -->
+
+                    <div>
+                        <!-- ToDo fix sortable -->
+                        <table id='users'>
+                            <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Title</th>
+                                <th>Initials</th>
+                                <th>First Name</th>
+                                <th>Surname</th>
+                                <th data-defaultsort='disabled'>Cell</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>View rounds</th>
+                                <th>Edit</th>
+                                <th>Remove</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for user in users %}
+                            <tr id="user{{ user.pk }}">
+                                <td data-id="user_id">{{ user.user_id }}</td>
+                                <td data-id="title">{{ user.title }}</td>
+                                <td data-id="initials">{{ user.initials }}</td>
+                                <td data-id="name">{{ user.name }}</td>
+                                <td data-id="surname">{{ user.surname }}</td>
+                                <td data-id="cell">{{ user.cell }}</td>
+                                <td data-id="email">{{ user.email }}</td>
+                                <td data-id="status">{{ user.status }}</td>
+                                <td>
+                                    <a type="button" class="btn btn-success btn-xs"
+                                       href="/userAdmin/userProfile/{{ user.pk }}">R</a>
+                                </td>
+                                <td>
+                                    <button type="button" name="edit" class='btn btn-success btn-xs edit'
+                                            data-toggle="modal" data-target="#editModal"
+                                            data-csrf='{{ csrf_token }}' data-id="{{ user.user_id }}"
+                                            data-pk="{{ user.pk }}">
+                                        &#9998;
+                                    </button>
+                                </td>
+
+                                <td>
+                                    <input type="checkbox" class="multiRemove" data-id="{{ user.user_id }}"
+                                           data-pk="{{ user.pk }}">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <br>
+                        <button type="button" name="remove" id="remove" class='btn btn-warning pull-right'
+                                data-csrf="{{ csrf_token }}" data-id="{{ user.user_id }}"
+                                data-pk="{{ user.pk }}">
+                            Delete Users
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="{% static 'peer_review/search.js' %}"></script>
-    <script src="{% static 'peer_review/validation.js' %}"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            const table = $("#users").DataTable({
-                "initComplete": function () {
-                    // Hook update user buttons
-                    editUserHookUpdateButtons(this);
-                }
-            });
+{% include "peer_review/userEditModal.html" %}
 
-            $(".btn.more").on("click", function () {
-                var pk = $(this).data("pk");
-                window.location.href = "" + pk;
-            });
+<div id="editEmailTemplate" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Edit Email Template</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" id="modalEmailForm">
+                    <div class="form-group">
+                        <label for="user_id">Email Text:</label>
+                        <p>
+                            Please use {first_name}, {last_name}, {otp}, {datetime} and {login} to indicate the
+                            positioning of the user's first name, last name, one time password,
+                            time of registration and login details, example:<br><br>
+                            Hello {first_name} {last_name} your username is {login} and your OTP is {otp}. It
+                            expires in 7 days from {datetime}
+                        </p>
+                        <textarea id="emailText" rows="15" type="text" class="form-control" id="email_text">{{ email_text }}</textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-csrf='{{ csrf_token }}'
+                        id="updateEmailConfirm" data-dismiss="modal">Update
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'peer_review/search.js' %}"></script>
+<script src="{% static 'peer_review/validation.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        const table = $("#users").DataTable({
+            "initComplete": function () {
+                // Hook update user buttons
+                editUserHookUpdateButtons(this);
+            }
         });
 
-        $("#updateEmailConfirm").on("click", function () {
-            var emailText = $("#emailText").val();
-            var token = $(this).data("csrf");
+        $(".btn.more").on("click", function () {
+            var pk = $(this).data("pk");
+            window.location.href = "" + pk;
+        });
+    });
 
+    $("#updateEmailConfirm").on("click", function () {
+        var emailText = $("#emailText").val();
+        var token = $(this).data("csrf");
+
+        var data = {
+            'emailText': emailText,
+            'csrfmiddlewaretoken': token
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '/userAdmin/updateEmail/',
+            data: data,
+            success: function () {
+                alert("Updated");
+            }
+        });
+    });
+
+    $("#remove").on("click", function () {
+        var toDelete = [];
+        var token = $(this).data("csrf");
+
+        $("input:checked.multiRemove").each(function () {
+            if (this.checked) {
+                toDelete.push({
+                    "id": $(this).data("id"),
+                    "pk": $(this).data("pk")
+                });
+            }
+        });
+
+        var toDeleteMessage = "Are you sure you want to delete these users:\n";
+        var toDeleteList = [];
+
+        $.each(toDelete, function (index, value) {
+            toDeleteMessage += value.id + "\n";
+            toDeleteList.push(value.pk);
+        });
+
+        if (confirm(toDeleteMessage)) {
             var data = {
-                'emailText': emailText,
+                'toDelete': toDeleteList,
                 'csrfmiddlewaretoken': token
             };
 
             $.ajax({
                 type: 'POST',
-                url: '/userAdmin/updateEmail/',
+                url: '/userAdmin/delete/',
                 data: data,
                 success: function () {
-                    alert("Updated");
-                }
-            });
-        });
-
-        $("#remove").on("click", function () {
-            var toDelete = [];
-            var token = $(this).data("csrf");
-
-            $("input:checked.multiRemove").each(function () {
-                if (this.checked) {
-                    toDelete.push({
-                        "id": $(this).data("id"),
-                        "pk": $(this).data("pk")
+                    $.each(toDeleteList, function (index, value) {
+                        $("#users > tbody > tr#" + value).fadeOut(500);
                     });
                 }
             });
-
-            var toDeleteMessage = "Are you sure you want to delete these users:\n";
-            var toDeleteList = [];
-
-            $.each(toDelete, function (index, value) {
-                toDeleteMessage += value.id + "\n";
-                toDeleteList.push(value.pk);
-            });
-
-            if (confirm(toDeleteMessage)) {
-                var data = {
-                    'toDelete': toDeleteList,
-                    'csrfmiddlewaretoken': token
-                };
-
-                $.ajax({
-                    type: 'POST',
-                    url: '/userAdmin/delete/',
-                    data: data,
-                    success: function () {
-                        $.each(toDeleteList, function (index, value) {
-                            $("#users > tbody > tr#" + value).fadeOut(500);
-                        });
-                    }
-                });
-            }
-        });
+        }
+    });
 
 
-    </script>
+</script>
 
-    {% endblock context %}
+{% endblock context %}

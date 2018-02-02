@@ -11,6 +11,7 @@ from peer_review.models import User, Document
 from peer_review.view.userManagement import create_user_send_otp
 from peer_review.modules.csv_utils import CsvStatus
 import peer_review.modules.csv_utils as csv_utils
+from django.contrib import messages
 
 # TODO(egeldenhuys): Rename this module to relate to user CSV upload
 # TODO(egeldenhuys): Test the functions in this module
@@ -108,6 +109,7 @@ def confirm_csv(request) -> HttpResponse:
             context_data['error_code'] = 1
             context_data['message'] = 'Invalid or no parameters sent'
 
+    messages.add_message(request, 
     return render(request, 'peer_review/userAdmin.html', context_data)
 
 
@@ -124,6 +126,7 @@ def init_context_data() -> Dict[str, Any]:
     module_dir = os.path.dirname(__file__)
     file_path = os.path.join(module_dir)
 
+    print(context_data)
     with open(file_path + '/../text/otp_email.txt', 'r+') as file:
         context_data['email_text'] = file.read()
 
