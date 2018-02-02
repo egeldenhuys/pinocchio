@@ -171,7 +171,7 @@ def user_exists(user_id: str) -> bool:
     try:
         user = User.objects.get(user_id=user_id)
         return bool(user)
-    except Exception:
+    except Except:
         # User does not exist
         pass
 
