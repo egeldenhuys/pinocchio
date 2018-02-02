@@ -30,12 +30,7 @@ import peer_review.modules.csvUtils as csv_utils
 validate_csv(csv_path: str) -> render
 confirm(user_list: List[Dict[str, str]]) -> render
 
-
 """
-
-
-def validate_csv(csv_path: str) -> HttpResponse:
-    pass
 
 
 def create_user(user: Dict[str, str]) -> bool:
@@ -48,15 +43,14 @@ def create_user(user: Dict[str, str]) -> bool:
         True if the user was successfully created, otherwise False
     """
     django_user = create_user_send_otp(
-            user_user_id=user['user_id'],
-            user_status='U',
-            user_title=user['title'],
-            user_initials=user['initials'],
-            user_name=user['name'],
-            user_surname=user['surname'],
-            user_cell=user['cell'],
-            user_email=user['email']
-    )
+        user_user_id=user['user_id'],
+        user_status='U',
+        user_title=user['title'],
+        user_initials=user['initials'],
+        user_name=user['name'],
+        user_surname=user['surname'],
+        user_cell=user['cell'],
+        user_email=user['email'])
 
     if django_user:
         return True
@@ -97,29 +91,38 @@ def confirm_csv(request) -> HttpResponse:
         if 'request_id' in request.POST and 'confirm' in request.POST:
             request_id: str = str(request.POST['request_id'])
             confirm: int = int(request.POST['confirm'])
-
+            file_path = os.path.join(base_dir, request_id)
             if confirm == 1:
-                status: CsvStatus = csv_utils.validate_csv(fields, os.path.join(base_dir, request_id))
+                status: CsvStatus = csv_utils.validate_csv(fields, file_path)
 
                 if status.valid:
                     if not users_exist(status.data):
                         for user in status.data:
                             if not create_user(user):
                                 context_data['error_code'] = 1
-                                context_data['message'] = 'Error creating the user with user_id %s' % user['user_id']
+                                context_data[
+                                    'message'] = 'Error creating the user with user_id %s' % user[
+                                        'user_id']
                                 break
                         # Success
                         context_data['error_code'] = 0
-                        context_data['message'] = 'All users were succesfully created'
+                        context_data[
+                            'message'] = 'All users were succesfully created'
                     else:
                         context_data['error_code'] = 1
-                        context_data['message'] = 'A user in the csv already exists in the database. Please retry for more information.'
+                        context_data[
+                            'message'] = 'A user in the csv already exists in the database. Please retry for more information.'
                 else:
                     context_data['error_code'] = 1
-                    context_data['message'] = 'Yer a wizard! The csv file on the server has been corrupted.'
+                    context_data[
+                        'message'] = 'Yer a wizard! The csv file on the server has been corrupted.'
             else:
                 context_data['error_code'] = 0
                 context_data['message'] = 'Operation has been cancelled'
+
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
         else:
             context_data['error_code'] = 1
             context_data['message'] = 'Invalid or no parameters sent'
@@ -143,7 +146,8 @@ def init_context_data() -> Dict[str, Any]:
 
     return context_data
 
-def path_leaf(path:str) -> str:
+
+def path_leaf(path: str) -> str:
     """Get the file name from the path
 
     Source:
@@ -157,6 +161,7 @@ def path_leaf(path:str) -> str:
     """
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
+
 
 def users_exist(user_list: List[Dict[str, str]]) -> bool:
     """Check if any users already exist in the database
@@ -181,17 +186,19 @@ def user_exists(user_id: str) -> bool:
         True if the user exists, otherwise False
     """
 
-    result: bool = False;
+    result: bool = False
     try:
         user = User.objects.get(user_id=user_id)
-        result = True;
+        result = True
     except Exception:
         # User does not exist
         pass
 
     return result
 
+
 # TODO(egeldenhuys): keep track of file uploads. Confirm
+
 
 @admin_required
 def submit_csv(request) -> HttpResponse:
@@ -201,6 +208,8 @@ def submit_csv(request) -> HttpResponse:
         Saves the file to ./media/documents
         The file is only deleted here when not valid.
         confirm_csv() is responsible for deleting valid files.
+        Files that are not confirmed or cancelled the file is
+        not deleted.
 
     Context Args:
         doc_file (FILE): The CSV file that was uploaded
@@ -246,11 +255,13 @@ def submit_csv(request) -> HttpResponse:
                     existing_users.append(user)
 
             if len(existing_users) > 0:
-                context_data['message'] = 'The following user_id(s) already exist'
+                context_data[
+                    'message'] = 'The following user_id(s) already exist'
                 context_data['possible_users'] = existing_users
                 context_data['error_code'] = 2
             else:
-                context_data['message'] = 'The CSV file is valid. The following users will be added:'
+                context_data[
+                    'message'] = 'The CSV file is valid. The following users will be added:'
                 context_data['possible_users'] = result.data
                 context_data['error_code'] = 0
                 context_data['request_id'] = path_leaf(csv_file.doc_file.url)
@@ -264,6 +275,5 @@ def submit_csv(request) -> HttpResponse:
     else:
         context_data['message'] = 'Error uploading document. Please try again'
         context_data['error_code'] = 1
-
 
     return render(request, 'peer_review/userAdmin.html', context_data)
