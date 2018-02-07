@@ -129,6 +129,10 @@ class CsvUtilsTest(TestCase):
         self.assertNotEqual(result.error_message, None)
         self.assertNotEqual(result.data, None)
 
+        self.assertEqual(len(result.data), 1)
+        self.assertEqual(result.data[0]['user_id'], 'fred')
+        self.assertEqual(result.data[0]['name'], 'The Fred')
+
         result: csv_utils.CsvStatus = csv_utils.validate_csv(
                 self.fields, self.csv_dir + '/valid_users.csv', primary_key_field='user_id')
         self.assertEqual(result.valid, True)

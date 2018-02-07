@@ -66,6 +66,8 @@ def contains_duplicates(items: List[Dict[str, str]], primary_key_field: str) -> 
         primary_key_field: The header in the CSV to check for duplicates
 
     Returns:
+        Only returns subsequent duplicates in data.
+
         A CsvStatus object that has the following cases:
 
         No duplicates found:
@@ -94,7 +96,7 @@ def contains_duplicates(items: List[Dict[str, str]], primary_key_field: str) -> 
         if not item[primary_key_field] in found_primary_keys:
             found_primary_keys[item[primary_key_field]] = True
         else:
-            duplicates.append(item[primary_key_field])
+            duplicates.append(item)
 
     if duplicates:
         return CsvStatus(valid=False,
