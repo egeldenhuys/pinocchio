@@ -229,6 +229,8 @@ def submit_csv(request) -> HttpResponse:
 
         result: CsvStatus = csv_utils.validate_csv(fields, file_path=file_path, primary_key_field='user_id')
 
+        print('DHAOGOG')
+        print(result.data)
         if result.valid:
             existing_users: List[Dict[str, str]] = list()
 

@@ -100,7 +100,7 @@ def contains_duplicates(items: List[Dict[str, str]], primary_key_field: str) -> 
 
     if duplicates:
         return CsvStatus(valid=False,
-                         error_message='CSV file contains duplicate primary keys',
+                         error_message='CSV file contains duplicate primary keys.',
                          data=duplicates)
     else:
         return CsvStatus(valid=True, data=None)
@@ -145,6 +145,9 @@ def validate_csv(fields: List[str], file_path: str, primary_key_field:str = None
 
             if not duplicate_result.valid and duplicate_result.data:
                 return duplicate_result
+
+    print('LIB:')
+    print(items)
     if items:
         return CsvStatus(valid=True, error_message=None, data=items)
     else:

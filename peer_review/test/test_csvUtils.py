@@ -137,3 +137,17 @@ class CsvUtilsTest(TestCase):
                 self.fields, self.csv_dir + '/valid_users.csv', primary_key_field='user_id')
         self.assertEqual(result.valid, True)
         self.assertNotEqual(result.data, None)
+
+    def test_unicode(self):
+        result: csv_utils.CsvStatus = csv_utils.validate_csv(
+                fields=self.fields,
+                file_path=self.csv_dir + '/valid_unicode.csv'
+        )
+
+        print(result.data)
+
+        # If the server does not crash, we assume success
+        self.assertEqual(result.valid, True)
+        self.assertNotEqual(result.data, None)
+        self.assertEqual(result.error_message, None)
+        # TODO(egeldenhuys): Test returned data
