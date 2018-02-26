@@ -144,10 +144,28 @@ class CsvUtilsTest(TestCase):
                 file_path=self.csv_dir + '/valid_unicode.csv'
         )
 
-        print(result.data)
-
         # If the server does not crash, we assume success
         self.assertEqual(result.valid, True)
         self.assertNotEqual(result.data, None)
         self.assertEqual(result.error_message, None)
         # TODO(egeldenhuys): Test returned data
+
+    def test_corrupt(self):
+        result: csv_utils.CsvStatus = csv_utils.validate_csv(
+                fields=self.fields,
+                file_path=self.csv_dir + '/invalid_corrupt.csv'
+        )
+        print(result.error_message)
+        self.assertEqual(result.valid, False)
+        self.assertEqual(result.data, None)
+        self.assertNotEqual(result.error_message, None)
+
+    def test_corrupt2(self):
+        result: csv_utils.CsvStatus = csv_utils.validate_csv(
+                fields=self.fields,
+                file_path=self.csv_dir + '/invalid_corrupt2.csv'
+        )
+
+        self.assertEqual(result.valid, False)
+        self.assertEqual(result.data, None)
+        self.assertNotEqual(result.error_message, None)
