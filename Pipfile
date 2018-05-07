@@ -1,0 +1,18 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+django = "==1.11"
+django-extensions = "*"
+graphviz = "*"
+pygraphviz = "*"
+pydot = "*"
+
+
+[dev-packages]
+
