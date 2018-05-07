@@ -12,6 +12,40 @@ from peer_review.view.userFunctions import user_error
 from django.template import loader
 
 
+'''
+Checks:
+- All users should exist
+    - If not exist, display the list of invalid user_ids
+    - Abort
+- The round should exist
+    - If not exist, display error message
+    - Abort
+- The team should exist
+    - If not exist, display teams that will be created
+    - If confirm, create teams and continue
+- A user should not be part of a team
+    - If part of team, display error of offending line
+    - Abort
+- If all checks pass, then ask for confirmation
+
+Process:
+- Upload CSV.
+    - Save to /media. See CSV upload for user CSV
+- Perform checks
+    - If we need to abort, delete the CSV file and return prompt
+    - If all checks pass, wait for confirmation
+- If confirm
+    - Parse again to verify system state
+    - Perform actions
+    - Delete CSV
+- If Cancel by admin
+    - Delete CSV
+    
+Note:
+- If admin does not confirm, or cancel then the CSV will not be deleted
+'''
+
+
 @admin_required
 def maintain_team(request):
     context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
