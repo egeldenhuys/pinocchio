@@ -121,27 +121,137 @@
                     </div>
                 </div>
             </div>
+
+            <!-- START CSV COMPONENT -->
+            <!-- TODO(egeldenhuys): Make reusable component
+                Args:
+                    message (str): A message indicating the error, if not valid
+                    possible_users (List[Dict[str, str]]):
+                        A list of users to be added, or already existing, if valid
+                    request_id (str): The name of the uploaded file, if valid
+                    error_code (int):
+                        0: No error
+                        1: CSV error
+                        2: User(s) already exists
+                        3: CSV upload error
+            -->
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
                     <h4 class="panel-title">
-                        <b>Create Teams Via CSV File</b><b class="caret"></b>
+                        <a>
+                            User Registration Via CSV File <b class="caret"></b>
+                        </a>
                     </h4>
                 </div>
-                <div id="collapseTwo" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <form role="form" method="post" action="{% url 'submitTeamCSV' %}" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <label for="doc_file">Upload CSV File:</label>
-                                <input type="file" id="doc_file" name="doc_file">
-                                <p class="help-block">Select a CSV file to create teams</p>
-                            </div>
+                <!-- TODO(egeldenhuys): rename message to something specific to CSV uploading.-->
+                <div id="collapseTwo" class="panel-collapse collapse {% if message or possible_users%}in{% endif %}">
 
-                            <button type="submit" class="btn btn-info">Submit</button>
+                    <div class="panel-body">
+                        <div>
+                            <div>
+                                <ul>
+                                    <li>Users need to exist.</li>
+                                    <li>Rounds need to exist</li>
+                                    <li>Teams for the existing round will be created if they do not exist, after confirmation.</li>
+                                </ul>
+
+                            </div>
+                            <strong>Example CSV</strong>:<br>
+                            <pre id="csv_example"></pre>
+                            <script>
+                                let str =
+                                    'user_id, round_name, team_name\n' +
+                                    'u12345678, demo4, team_pinocchio';
+                                $('#csv_example').text(str);
+                            </script>
+
+                            <ul>
+                                <li>The CSV file needs to be encoded in utf-8.</li>
+                            </ul>
+                        </div>
+                        <form class="col-md-6" action="{% url 'submitCSV' %}" method="post"
+                              enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <p>{{ docForm.non_field_errors }}</p>
+
+                            <p>{{ docForm.doc_file.label_tag }} {{ docForm.doc_file.help_text }}</p>
+
+                            <p>
+                                {{ docForm.doc_file.errors }}
+                                {{ docForm.doc_file }}
+                            </p>
+                            <input type="submit" value="Submit"/>
                         </form>
                     </div>
+                    <!-- existance of error_code indicates we recieved a response
+                    from the submit_csv() function -->
+                    {% if error_code != None %}
+                    <div class="panel-body">
+
+                        {% if error_code == 0 %}
+                        <div class="alert alert-success" role="alert">
+                            {{ message }}
+                        </div>
+
+                            {% if possible_users %}
+                            <!-- TODO(egeldenhuys): Add button to skip to bottom? -->
+                            <div class="alert alert-info" role="alert">
+                                Confirm the transaction at the bottom of the page
+                            </div>
+                            {% endif %}
+
+                        {% else %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endif %}
+
+                        {% if possible_users %}
+                        <div class='table-responsive'>
+                            <table class='table'>
+                                <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Initials</th>
+                                    <th>Name</th>
+                                    <th>Surname</th>
+                                    <th>Email</th>
+                                    <th>Cell</th>
+                                    <th>UserID</th>
+                                </thead>
+                                {% for row in possible_users %}
+                                <tr>
+                                    <td>{{ row.title }}</td>
+                                    <td>{{ row.initials }}</td>
+                                    <td>{{ row.name }}</td>
+                                    <td>{{ row.surname }}</td>
+                                    <td>{{ row.email }}</td>
+                                    <td>{{ row.cell }}</td>
+                                    <td>{{ row.user_id }}</td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        {% endif %}
+
+                        {% if error_code == 0 and possible_users %}
+                        <form action="{% url 'submitCSV_confirm' %}" method="post"
+                              enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <input type="hidden" name="request_id" value="{{request_id}}"><br>
+                            <input id="confirm" type="hidden" name="confirm" value="0"><br>
+
+                            <input type="submit" value="Cancel" onclick="document.getElementById('confirm').value='0'">
+                            <input type="submit" value="Confirm" onclick="document.getElementById('confirm').value='1'">
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
+
+            <!-- END CSV COMPONENT -->
         </div>
     </div>
     <script src="{% static "peer_review/js/maintainTeam.js" %}"></script>

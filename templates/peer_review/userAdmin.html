@@ -116,6 +116,19 @@
                 </div>
             </div>
 
+            <!-- START CSV COMPONENT -->
+            <!-- TODO(egeldenhuys): Make reusable component
+                Args:
+                    message (str): A message indicating the error, if not valid
+                    possible_users (List[Dict[str, str]]):
+                        A list of users to be added, or already existing, if valid
+                    request_id (str): The name of the uploaded file, if valid
+                    error_code (int):
+                        0: No error
+                        1: CSV error
+                        2: User(s) already exists
+                        3: CSV upload error
+            -->
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
                     <h4 class="panel-title">
@@ -231,6 +244,8 @@
                     {% endif %}
                 </div>
             </div>
+
+            <!-- END CSV COMPONENT -->
 
             <div class="panel panel-default">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion"

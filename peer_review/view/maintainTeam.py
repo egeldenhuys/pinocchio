@@ -11,6 +11,13 @@ from peer_review.forms import DocumentForm
 from peer_review.view.userFunctions import user_error
 from django.template import loader
 
+from django.http import HttpResponse
+from typing import List, Dict, Any
+from peer_review.modules.csv_utils import CsvStatus
+import peer_review.modules.csv_utils as csv_utils
+import  django.core.exceptions
+
+
 
 '''
 Checks:
@@ -44,6 +51,17 @@ Process:
 Note:
 - If admin does not confirm, or cancel then the CSV will not be deleted
 '''
+
+
+def init_context_data() -> Dict[str, any]:
+    """Get the context required for the template to function
+
+    :return: Context dict
+    """
+    context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
+               'rounds': RoundDetail.objects.all(),
+               'teams': TeamDetail.objects.all()}
+    return context
 
 
 @admin_required
@@ -252,3 +270,89 @@ def validate_team_csv(row):
         if value is None:
             return 2
     return 0
+
+@admin_required
+def submit_csv(request) -> HttpResponse:
+    """Validate the CSV and return the status and data in the context
+
+    Note:
+        Saves the file to ./media/documents
+        The file is only deleted here when not valid.
+        confirm_csv() is responsible for deleting valid files.
+        Files that are not confirmed or cancelled the file is
+        not deleted.
+
+    Context Args:
+        doc_file (FILE): The CSV file that was uploaded
+
+    Context Returns:
+        message (str): A message indicating the error, if not valid
+        possible_users (List[Dict[str, str]]):
+            A list of users to be added, or already existing, if valid
+        request_id (str): The name of the uploaded file, if valid
+        error_code (int):
+            0: No error
+            1: CSV error
+            2: User(s) already exists
+            3: CSV upload error
+
+        `error_code` will always be returned.
+    """
+    # TODO(egeldenhuys): Get fields from User Model
+    fields: list = [
+        'user_id', 'round_name', 'team_name'
+    ]
+
+    optional_fields: list = []
+
+    context_data: Dict[str, Any] = init_context_data()
+    context_data['error_code'] = 3
+
+    if request.method == 'POST' and \
+            DocumentForm(request.POST, request.FILES).is_valid():
+
+        csv_file = Document(doc_file=request.FILES['doc_file'])
+
+        csv_file.save()
+
+        # [1:] Strip the leading /
+        file_path: str = csv_file.doc_file.url[1:]
+
+        result: CsvStatus = csv_utils.validate_csv(fields,
+                                                   file_path=file_path,
+                                                   primary_key_field='user_id',
+                                                   optional_fields=optional_fields)
+
+        if result.valid:
+            existing_users: List[Dict[str, str]] = list()
+
+            for user in result.data:
+                if user_exists(user['user_id']):
+                    existing_users.append(user)
+
+            if existing_users:
+                context_data[
+                    'message'] = 'The following user_id(s) already exist'
+                context_data['possible_users'] = existing_users
+                context_data['error_code'] = 2
+            else:
+                context_data[
+                    'message'] = 'The CSV file is valid. The following users will be added:'
+                context_data['possible_users'] = result.data
+                context_data['error_code'] = 0
+                context_data['request_id'] = path_leaf(csv_file.doc_file.url)
+        else:
+            if result.data:
+                context_data['possible_users'] = result.data
+
+            context_data['message'] = result.error_message
+            context_data['error_code'] = 1
+
+        if context_data['error_code'] != 0 and context_data['error_code'] != 3:
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+    else:
+        context_data['message'] = 'Error uploading document. Please try again'
+        context_data['error_code'] = 1
+
+    return render(request, 'peer_review/userAdmin.html', context_data)
