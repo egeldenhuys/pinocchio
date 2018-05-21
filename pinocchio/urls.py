@@ -54,6 +54,7 @@ urlpatterns = [
         name='submitUserForm'),
     url(r'^userAdmin/submitCSV/$', peer_review.view.userAdmin.submit_csv, name='submitCSV'),
     url(r'^userAdmin/submitCSV_confirm/$', peer_review.view.userAdmin.confirm_csv, name='submitCSV_confirm'),
+
     url(r'^userAdmin/delete/$', views.user_delete, name='userDelete'),
     url(r'^userAdmin/userProfile/(?P<user_id>[0-9a-zA-Z]+)/?$', views.user_profile, name="userProfile"),
     url(r'^userAdmin/update/(?P<user_id>[0-9a-zA-Z]+)/?$',
@@ -91,7 +92,12 @@ urlpatterns = [
     url(
         r'^maintainTeam/changeUserTeamForRound/(?P<round_pk>[0-9]+)/(?P<user_id>[0-9a-zA-Z]+)/(?P<team_name>[a-zA-Z0-9]+)/?$',
         change_user_team_for_round, name='changeUserTeamForRound'),
-    url(r'^maintainTeam/getTeams/?$', get_teams, name='getTeams'),
+                  url(r'^maintainTeam/submitCSV/$',
+                      peer_review.view.maintainTeam.submit_csv, name='teamSubmitCSV'),
+                  url(r'^maintainTeam/submitCSV_confirm/$',
+                      peer_review.view.maintainTeam.confirm_csv,
+                      name='teamSubmitCSV_confirm'),
+                  url(r'^maintainTeam/getTeams/?$', get_teams, name='getTeams'),
     url(r'^maintainTeam/changeTeamStatus/(?P<team_pk>[0-9]+)/(?P<status>[a-zA-Z0-9]+)/?$',
         change_team_status, name='changeTeamStatus'),
     url(r'^maintainTeam/submitTeamCSV/$', submit_team_csv, name='submitTeamCSV'),

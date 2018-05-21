@@ -161,7 +161,9 @@ def validate_csv(fields: List[str], file_path: str,
 
     Returns:
         A 'CsvStatus' object indicating the state of the csv file
-        and the data if it was valid
+        and the data if it was valid.
+
+        A false result may indicate missing fields
 
     Note:
         Prints an exception message when there is a UnicodeDecodeError

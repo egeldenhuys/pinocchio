@@ -169,7 +169,7 @@
                                 <li>The CSV file needs to be encoded in utf-8.</li>
                             </ul>
                         </div>
-                        <form class="col-md-6" action="{% url 'submitCSV' %}" method="post"
+                        <form class="col-md-6" action="{% url 'teamSubmitCSV' %}" method="post"
                               enctype="multipart/form-data">
                             {% csrf_token %}
                             <p>{{ docForm.non_field_errors }}</p>
@@ -235,7 +235,7 @@
                         {% endif %}
 
                         {% if error_code == 0 and possible_users %}
-                        <form action="{% url 'submitCSV_confirm' %}" method="post"
+                        <form action="{% url 'teamSubmitCSV_confirm' %}" method="post"
                               enctype="multipart/form-data">
                             {% csrf_token %}
 

@@ -50,6 +50,17 @@ Process:
     
 Note:
 - If admin does not confirm, or cancel then the CSV will not be deleted
+
+Actions to be performed on confirmation:
+    The following teams will be created under the round "<Round ID>"
+    
+    TripleParity
+        - Evert
+        - Raymond
+        
+    TeamPython
+        - Bob
+        - Fred
 '''
 
 
@@ -58,17 +69,16 @@ def init_context_data() -> Dict[str, any]:
 
     :return: Context dict
     """
-    context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
+    context: Dict[str, any] = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
                'rounds': RoundDetail.objects.all(),
-               'teams': TeamDetail.objects.all()}
+               'teams': TeamDetail.objects.all(),
+               'docForm': DocumentForm()}
     return context
 
 
 @admin_required
 def maintain_team(request):
-    context = {'users': User.objects.filter(Q(is_active=1) & (Q(status='S') | Q(status='U'))),
-               'rounds': RoundDetail.objects.all(),
-               'teams': TeamDetail.objects.all()}
+    context = init_context_data()
 
     if request.method == "POST":
         round_pk = request.POST.get("roundPk")
@@ -271,6 +281,18 @@ def validate_team_csv(row):
             return 2
     return 0
 
+
+class Team(object):
+    def __init__(self, team_name: str, team_members: List[str]):
+        self.team_name = team_name
+        self.team_members = team_members
+
+
+class Round(object):
+    def __init__(self, teams: Team):
+        self.teams = teams
+
+
 @admin_required
 def submit_csv(request) -> HttpResponse:
     """Validate the CSV and return the status and data in the context
@@ -287,18 +309,23 @@ def submit_csv(request) -> HttpResponse:
 
     Context Returns:
         message (str): A message indicating the error, if not valid
+
         possible_users (List[Dict[str, str]]):
             A list of users to be added, or already existing, if valid
+
         request_id (str): The name of the uploaded file, if valid
         error_code (int):
             0: No error
-            1: CSV error
-            2: User(s) already exists
-            3: CSV upload error
+            1: CSV error. (Missing fields, error decoding, headers).
+                Message returned by the csv_utils module
+            2: CSV Upload Error
+            3: Round ID does not exist
+            4: User does not exist
+            5:
 
         `error_code` will always be returned.
     """
-    # TODO(egeldenhuys): Get fields from User Model
+    # TODO(egeldenhuys): Get fields from a model(s) in the database
     fields: list = [
         'user_id', 'round_name', 'team_name'
     ]
@@ -324,35 +351,19 @@ def submit_csv(request) -> HttpResponse:
                                                    optional_fields=optional_fields)
 
         if result.valid:
-            existing_users: List[Dict[str, str]] = list()
 
-            for user in result.data:
-                if user_exists(user['user_id']):
-                    existing_users.append(user)
+            # Place each user into a team, and each team into a round
 
-            if existing_users:
-                context_data[
-                    'message'] = 'The following user_id(s) already exist'
-                context_data['possible_users'] = existing_users
-                context_data['error_code'] = 2
-            else:
-                context_data[
-                    'message'] = 'The CSV file is valid. The following users will be added:'
-                context_data['possible_users'] = result.data
-                context_data['error_code'] = 0
-                context_data['request_id'] = path_leaf(csv_file.doc_file.url)
-        else:
-            if result.data:
-                context_data['possible_users'] = result.data
+            for row in result.data:
+                print(row['user_id'])
 
-            context_data['message'] = result.error_message
-            context_data['error_code'] = 1
-
-        if context_data['error_code'] != 0 and context_data['error_code'] != 3:
-            if os.path.isfile(file_path):
-                os.remove(file_path)
     else:
         context_data['message'] = 'Error uploading document. Please try again'
         context_data['error_code'] = 1
 
-    return render(request, 'peer_review/userAdmin.html', context_data)
+    return render(request, 'peer_review/maintainTeam.html', context_data)
+
+
+@admin_required
+def confirm_csv():
+    return False;
